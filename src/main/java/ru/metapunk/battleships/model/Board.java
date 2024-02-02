@@ -1,7 +1,7 @@
-package ru.metapunk.battleships.view;
+package ru.metapunk.battleships.model;
 
 import javafx.scene.layout.GridPane;
-import ru.metapunk.battleships.view.tiles.Cell;
+import ru.metapunk.battleships.model.tile.Cell;
 
 public class Board {
     public static final int DEFAULT_GRID_SIZE = 10;

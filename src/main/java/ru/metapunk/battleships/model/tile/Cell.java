@@ -1,4 +1,4 @@
-package ru.metapunk.battleships.view.tiles;
+package ru.metapunk.battleships.model.tile;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;

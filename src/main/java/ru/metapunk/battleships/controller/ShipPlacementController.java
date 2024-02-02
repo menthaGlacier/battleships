@@ -10,10 +10,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import ru.metapunk.battleships.model.ShipType;
-import ru.metapunk.battleships.view.Board;
-import ru.metapunk.battleships.view.tiles.Cell;
-import ru.metapunk.battleships.view.tiles.TileType;
+import ru.metapunk.battleships.model.ship.ShipType;
+import ru.metapunk.battleships.model.Board;
+import ru.metapunk.battleships.model.tile.Cell;
+import ru.metapunk.battleships.model.tile.TileType;
 
 public class ShipPlacementController {
     @FXML
@@ -262,7 +262,7 @@ public class ShipPlacementController {
             shipCells[i].setTileType(findTileType(i));
             shipCells[i].applyTileStyle();
         }
-        
+
         updateAvailableShipsVbox(selectedShipType);
         markAdjustmentTiles(startRow, startColumn);
     }

@@ -1,4 +1,4 @@
-package ru.metapunk.battleships.view.tiles;
+package ru.metapunk.battleships.model.tile;
 
 public enum TileType {
     SINGULAR,

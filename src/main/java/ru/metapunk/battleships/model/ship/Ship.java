@@ -1,4 +1,4 @@
-package ru.metapunk.battleships.model;
+package ru.metapunk.battleships.model.ship;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;

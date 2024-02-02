@@ -1,4 +1,4 @@
-package ru.metapunk.battleships.model;
+package ru.metapunk.battleships.model.ship;
 
 public enum ShipType {
     BATTLESHIP(4),
