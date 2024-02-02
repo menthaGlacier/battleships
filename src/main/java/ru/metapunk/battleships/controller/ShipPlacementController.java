@@ -171,21 +171,16 @@ public class ShipPlacementController {
     private void handleShipGridClick(MouseEvent event, GridPane shipGrid) {
         if (shipGrid == battleshipGrid) {
             selectedShipType = ShipType.BATTLESHIP;
-            selectedShip.setWidth(Cell.TILE_SIZE * 4);
-            selectedShip.setHeight(Cell.TILE_SIZE);
         } else if (shipGrid == destroyerGrid) {
             selectedShipType = ShipType.DESTROYER;
-            selectedShip.setWidth(Cell.TILE_SIZE * 3);
-            selectedShip.setHeight(Cell.TILE_SIZE);
         } else if (shipGrid == cruiserGrid) {
             selectedShipType = ShipType.CRUISER;
-            selectedShip.setWidth(Cell.TILE_SIZE * 2);
-            selectedShip.setHeight(Cell.TILE_SIZE);
         } else if (shipGrid == submarineGrid) {
             selectedShipType = ShipType.SUBMARINE;
-            selectedShip.setWidth(Cell.TILE_SIZE);
-            selectedShip.setHeight(Cell.TILE_SIZE);
         }
+
+        selectedShip.setWidth(Cell.TILE_SIZE * selectedShipType.getSize());
+        selectedShip.setHeight(Cell.TILE_SIZE);
 
         selectedShip.setX(event.getX());
         selectedShip.setY(event.getY());
@@ -240,225 +235,19 @@ public class ShipPlacementController {
             return;
         }
 
-//        if (selectedShipType == ShipType.SUBMARINE) {
-//            cell.setHasShip(true);
-//            cell.setTileType(TileType.SINGULAR);
-//            cell.applyTileStyle();
-//            updateAvailableShipsVbox(selectedShipType);
-//            return;
-//        }
-
         int row = GridPane.getRowIndex(cell);
         int column = GridPane.getColumnIndex(cell);
+        int shipSize = selectedShipType.getSize();
 
-        markAdjustmentTiles(row, column);
-
-        Cell first;
-        Cell second;
-        Cell third;
-        Cell fourth;
-
-        if (isSelectedShipHorizontal) {
-            switch (selectedShipType) {
-                case BATTLESHIP -> {
-                    if (Board.DEFAULT_GRID_SIZE < column + selectedShipType.getSize()) {
-                        return;
-                    }
-
-                    first = getCellFromGrid(row, column);
-                    second = getCellFromGrid(row, column + 1);
-                    third = getCellFromGrid(row, column + 2);
-                    fourth = getCellFromGrid(row, column + 3);
-
-                    if (first != null && second != null && third != null && fourth != null) {
-                        if (first.getHasShip() || second.getHasShip() || third.getHasShip() || fourth.getHasShip()) {
-                            return;
-                        }
-
-                        first.setHasShip(true);
-                        first.setTileType(TileType.LEFTMOST_HORIZONTAL);
-                        second.setHasShip(true);
-                        second.setTileType(TileType.BRIDGE_HORIZONTAL);
-                        third.setHasShip(true);
-                        third.setTileType(TileType.BRIDGE_HORIZONTAL);
-                        fourth.setHasShip(true);
-                        fourth.setTileType(TileType.RIGHTMOST_HORIZONTAL);
-
-                        first.applyTileStyle();
-                        second.applyTileStyle();
-                        third.applyTileStyle();
-                        fourth.applyTileStyle();
-                    }
-                }
-                case DESTROYER -> {
-                    if (Board.DEFAULT_GRID_SIZE < column + selectedShipType.getSize()) {
-                        return;
-                    }
-
-                    first = getCellFromGrid(row, column);
-                    second = getCellFromGrid(row, column + 1);
-                    third = getCellFromGrid(row, column + 2);
-
-                    if (first != null && second != null && third != null) {
-                        if (first.getHasShip() || second.getHasShip() || third.getHasShip()) {
-                            return;
-                        }
-
-                        first.setHasShip(true);
-                        first.setTileType(TileType.LEFTMOST_HORIZONTAL);
-                        second.setHasShip(true);
-                        second.setTileType(TileType.BRIDGE_HORIZONTAL);
-                        third.setHasShip(true);
-                        third.setTileType(TileType.RIGHTMOST_HORIZONTAL);
-
-                        first.applyTileStyle();
-                        second.applyTileStyle();
-                        third.applyTileStyle();
-                    }
-
-                }
-                case CRUISER -> {
-                    if (Board.DEFAULT_GRID_SIZE < column + selectedShipType.getSize()) {
-                        return;
-                    }
-
-                    first = getCellFromGrid(row, column);
-                    second = getCellFromGrid(row, column + 1);
-
-                    if (first != null && second != null) {
-                        if (first.getHasShip() || second.getHasShip()) {
-                            return;
-                        }
-
-                        first.setHasShip(true);
-                        first.setTileType(TileType.LEFTMOST_HORIZONTAL);
-                        second.setHasShip(true);
-                        second.setTileType(TileType.RIGHTMOST_HORIZONTAL);
-
-                        first.applyTileStyle();
-                        second.applyTileStyle();
-                    }
-                }
-                case SUBMARINE -> {
-                    if (Board.DEFAULT_GRID_SIZE < column + selectedShipType.getSize()) {
-                        return;
-                    }
-
-                    first = getCellFromGrid(row, column);
-
-                    if (first != null) {
-                        if (first.getHasShip()) {
-                            return;
-                        }
-
-                        first.setHasShip(true);
-                        first.setTileType(TileType.SINGULAR);
-
-                        first.applyTileStyle();
-                    }
-                }
-            }
+        if (selectedShipType == ShipType.SUBMARINE) {
+            placeShip(row, column);
         } else {
-            switch (selectedShipType) {
-                case BATTLESHIP -> {
-                    if (Board.DEFAULT_GRID_SIZE < row + selectedShipType.getSize()) {
-                        return;
-                    }
-
-                    first = getCellFromGrid(row, column);
-                    second = getCellFromGrid(row + 1, column);
-                    third = getCellFromGrid(row + 2, column);
-                    fourth = getCellFromGrid(row + 3, column);
-
-                    if (first != null && second != null && third != null && fourth != null) {
-                        if (first.getHasShip() || second.getHasShip() || third.getHasShip() || fourth.getHasShip()) {
-                            return;
-                        }
-
-                        first.setHasShip(true);
-                        first.setTileType(TileType.UPMOST_VERTICAL);
-                        second.setHasShip(true);
-                        second.setTileType(TileType.BRIDGE_VERTICAL);
-                        third.setHasShip(true);
-                        third.setTileType(TileType.BRIDGE_VERTICAL);
-                        fourth.setHasShip(true);
-                        fourth.setTileType(TileType.BOTTOMMOST_VERTICAL);
-
-                        first.applyTileStyle();
-                        second.applyTileStyle();
-                        third.applyTileStyle();
-                        fourth.applyTileStyle();
-                    }
-                }
-                case DESTROYER -> {
-                    if (Board.DEFAULT_GRID_SIZE < row + selectedShipType.getSize()) {
-                        return;
-                    }
-
-
-                    first = getCellFromGrid(row, column);
-                    second = getCellFromGrid(row + 1, column);
-                    third = getCellFromGrid(row + 2, column);
-
-                    if (first != null && second != null && third != null) {
-                        if (first.getHasShip() || second.getHasShip()
-                                || third.getHasShip()) {
-                            return;
-                        }
-
-                        first.setHasShip(true);
-                        first.setTileType(TileType.UPMOST_VERTICAL);
-                        second.setHasShip(true);
-                        second.setTileType(TileType.BRIDGE_VERTICAL);
-                        third.setHasShip(true);
-                        third.setTileType(TileType.BOTTOMMOST_VERTICAL);
-
-                        first.applyTileStyle();
-                        second.applyTileStyle();
-                        third.applyTileStyle();
-                    }
-                }
-                case CRUISER -> {
-                    if (Board.DEFAULT_GRID_SIZE < row + selectedShipType.getSize()) {
-                        return;
-                    }
-
-                    first = getCellFromGrid(row, column);
-                    second = getCellFromGrid(row + 1, column);
-
-                    if (first != null && second != null) {
-                        if (first.getHasShip() || second.getHasShip()) {
-                            return;
-                        }
-
-                        first.setHasShip(true);
-                        first.setTileType(TileType.UPMOST_VERTICAL);
-                        second.setHasShip(true);
-                        second.setTileType(TileType.BOTTOMMOST_VERTICAL);
-
-                        first.applyTileStyle();
-                        second.applyTileStyle();
-                    }
-                }
-                case SUBMARINE -> {
-                    if (Board.DEFAULT_GRID_SIZE < row + selectedShipType.getSize()) {
-                        return;
-                    }
-
-                    first = getCellFromGrid(row, column);
-
-                    if (first != null) {
-                        if (first.getHasShip()) {
-                            return;
-                        }
-
-                        first.setHasShip(true);
-                        first.setTileType(TileType.SINGULAR);
-
-                        first.applyTileStyle();
-                    }
-                }
+            if ((isSelectedShipHorizontal && column + shipSize > Board.DEFAULT_GRID_SIZE)
+                || !isSelectedShipHorizontal && row + shipSize > Board.DEFAULT_GRID_SIZE) {
+                return;
             }
+
+            placeShip(row, column);
         }
     }
 
@@ -480,20 +269,39 @@ public class ShipPlacementController {
 
         for (int i = 0; i < shipSize; i++) {
             shipCells[i].setHasShip(true);
-            //shipCells[i].setTileType(getType(i));
+            shipCells[i].setTileType(findTileType(i));
+            shipCells[i].applyTileStyle();
         }
     }
 
-    private TileType getTileType(int index) {
+    private TileType findTileType(int index) {
         int shipSize = selectedShipType.getSize();
 
         if (shipSize == 1) {
             return TileType.SINGULAR;
         }
 
-        // TODO
+        if (index == 0) {
+            if (isSelectedShipHorizontal) {
+                return TileType.LEFTMOST_HORIZONTAL;
+            }
 
-        return TileType.SINGULAR;
+            return TileType.UPMOST_VERTICAL;
+        }
+
+        if (index == shipSize - 1) {
+            if (isSelectedShipHorizontal) {
+                return TileType.RIGHTMOST_HORIZONTAL;
+            }
+
+            return TileType.BOTTOMMOST_VERTICAL;
+        }
+
+        if (isSelectedShipHorizontal) {
+            return TileType.BRIDGE_HORIZONTAL;
+        }
+
+        return TileType.BRIDGE_VERTICAL;
     }
 
     private void rotateSelectedShip() {
