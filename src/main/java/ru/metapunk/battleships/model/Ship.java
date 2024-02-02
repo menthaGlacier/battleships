@@ -14,15 +14,7 @@ public class Ship {
     public Ship(ShipType shipType) {
         this.shipType = shipType;
         this.isAlive = new SimpleBooleanProperty();
-
-        switch (shipType) {
-            case BATTLESHIP -> tilesAlive = new SimpleIntegerProperty(4);
-            case DESTROYER -> tilesAlive = new SimpleIntegerProperty(3);
-            case CRUISER -> tilesAlive = new SimpleIntegerProperty(2);
-            case SUBMARINE -> tilesAlive = new SimpleIntegerProperty(1);
-            default -> tilesAlive = new SimpleIntegerProperty(0);
-        }
-
+        this.tilesAlive = new SimpleIntegerProperty(this.shipType.getSize());
         this.isTileBombed = new BooleanProperty[tilesAlive.get()];
     }
 
