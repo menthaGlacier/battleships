@@ -237,18 +237,8 @@ public class ShipPlacementController {
 
         int row = GridPane.getRowIndex(cell);
         int column = GridPane.getColumnIndex(cell);
-        int shipSize = selectedShipType.getSize();
 
-        if (selectedShipType == ShipType.SUBMARINE) {
-            placeShip(row, column);
-        } else {
-            if ((isSelectedShipHorizontal && column + shipSize > Board.DEFAULT_GRID_SIZE)
-                || !isSelectedShipHorizontal && row + shipSize > Board.DEFAULT_GRID_SIZE) {
-                return;
-            }
-
-            placeShip(row, column);
-        }
+        placeShip(row, column);
     }
 
     private void placeShip(int startRow, int startColumn) {
@@ -272,6 +262,9 @@ public class ShipPlacementController {
             shipCells[i].setTileType(findTileType(i));
             shipCells[i].applyTileStyle();
         }
+        
+        updateAvailableShipsVbox(selectedShipType);
+        markAdjustmentTiles(startRow, startColumn);
     }
 
     private TileType findTileType(int index) {
