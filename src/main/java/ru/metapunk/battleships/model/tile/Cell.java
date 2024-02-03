@@ -10,8 +10,8 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 public class Cell extends StackPane {
-    public static final Color EMPTY_TILE_FILL_COLOR = Color.rgb(255, 255, 255);
-    public static final Color EMPTY_TILE_BORDER_COLOR = Color.rgb(100, 100, 100);
+    public static final Color NEUTRAL_TILE_FILL_COLOR = Color.rgb(255, 255, 255);
+    public static final Color NEUTRAL_TILE_BORDER_COLOR = Color.rgb(100, 100, 100);
     public static final Color PLAYER_SHIP_TILE_FILL_COLOR = Color.rgb(60, 60, 255, 0.2);
     public static final Color PLAYER_SHIP_TILE_BORDER_COLOR = Color.rgb(45, 45, 220);
     public static final Color ENEMY_SHIP_TILE_FILL_COLOR = Color.rgb(255, 40, 40, 0.2);
@@ -20,18 +20,18 @@ public class Cell extends StackPane {
 
     private final Pane tile;
     private TileType tileType;
-    private boolean isPlayerBoardTile;
+    private TileAlignment tileAlignment;
     private boolean hasShip;
     private boolean bombarded;
 
     public Cell() {
-        this(TileType.SINGULAR, false, false);
+        this(TileType.SINGULAR, TileAlignment.NEUTRAL, false);
     }
 
-    public Cell(TileType tileType, boolean isPlayerBoardTile, boolean hasShip) {
+    public Cell(TileType tileType, TileAlignment tileAlignment, boolean hasShip) {
         this.tile = new Pane();
         this.tileType = tileType;
-        this.isPlayerBoardTile = isPlayerBoardTile;
+        this.tileAlignment = tileAlignment;
         this.hasShip = hasShip;
         this.bombarded = false;
 
@@ -39,13 +39,13 @@ public class Cell extends StackPane {
         this.applyTileStyle();
         this.getChildren().add(this.getTile());
 
-        if (!this.getIsPlayerBoardTile()) {
+        if (tileAlignment == TileAlignment.ENEMY) {
             this.handleMouseEvents();
         }
     }
 
-    public Cell(boolean isPlayerBoardTile) {
-        this(TileType.SINGULAR, isPlayerBoardTile, false);
+    public Cell(TileAlignment tileAlignment) {
+        this(TileType.SINGULAR, tileAlignment, false);
     }
 
     private void handleMouseEvents() {
@@ -78,12 +78,12 @@ public class Cell extends StackPane {
         this.tileType = tileType;
     }
 
-    public boolean getIsPlayerBoardTile() {
-        return this.isPlayerBoardTile;
+    public TileAlignment getTileAlignment() {
+        return tileAlignment;
     }
 
-    public void setIsPlayerBoardTile(boolean isPlayerBoardTile) {
-        this.isPlayerBoardTile = isPlayerBoardTile;
+    public void setTileAlignment(TileAlignment tileAlignment) {
+        this.tileAlignment = tileAlignment;
     }
 
     public boolean getHasShip() {
@@ -117,14 +117,10 @@ public class Cell extends StackPane {
     private String getBackgroundColorStyle() {
         String color = "-fx-background-color: ";
 
-        if (!this.getHasShip()) {
-            color += (colorToRgbaString(EMPTY_TILE_FILL_COLOR) + ";");
-        } else {
-            if (this.getIsPlayerBoardTile()) {
-                color += colorToRgbaString(PLAYER_SHIP_TILE_FILL_COLOR) + ";";
-            } else {
-                color += colorToRgbaString(ENEMY_SHIP_TILE_FILL_COLOR) + ";";
-            }
+        switch (tileAlignment) {
+            case PLAYER -> color += colorToRgbaString(PLAYER_SHIP_TILE_FILL_COLOR) + ";";
+            case ENEMY -> color += colorToRgbaString(ENEMY_SHIP_TILE_FILL_COLOR) + ";";
+            default -> color += (colorToRgbaString(NEUTRAL_TILE_FILL_COLOR) + ";");
         }
 
         return color;
@@ -134,7 +130,7 @@ public class Cell extends StackPane {
         String color = "-fx-border-color: ";
 
         if (!this.getHasShip()) {
-            color += (colorToRgbaString(EMPTY_TILE_BORDER_COLOR) + ";");
+            color += (colorToRgbaString(NEUTRAL_TILE_BORDER_COLOR) + ";");
         } else {
             switch (this.getTileType()) {
                 case SINGULAR ->
@@ -153,12 +149,13 @@ public class Cell extends StackPane {
                         color += "holder transparent holder transparent;";
             }
 
-            if (this.getIsPlayerBoardTile()) {
-                color = color.replaceAll("holder",
-                        colorToRgbaString(PLAYER_SHIP_TILE_BORDER_COLOR));
-            } else {
-                color = color.replaceAll("holder",
-                        colorToRgbaString(ENEMY_SHIP_TILE_BORDER_COLOR));
+            switch (tileAlignment) {
+                case PLAYER -> color = color.replaceAll("holder",
+                        colorToRgbaString(PLAYER_SHIP_TILE_BORDER_COLOR)
+                );
+                case ENEMY -> color = color.replaceAll("holder",
+                        colorToRgbaString(ENEMY_SHIP_TILE_BORDER_COLOR)
+                );
             }
         }
 
@@ -175,10 +172,10 @@ public class Cell extends StackPane {
     public void putDotMark() {
         Circle circle;
 
-        if (isPlayerBoardTile) {
-            circle = new Circle(2, EMPTY_TILE_BORDER_COLOR);
-        } else {
+        if (tileAlignment == TileAlignment.ENEMY) {
             circle = new Circle(2, ENEMY_SHIP_TILE_BORDER_COLOR);
+        } else {
+            circle = new Circle(2, NEUTRAL_TILE_BORDER_COLOR);
         }
 
         this.getChildren().add(circle);
@@ -191,12 +188,12 @@ public class Cell extends StackPane {
         first.setStrokeWidth(2);
         second.setStrokeWidth(2);
 
-        if (isPlayerBoardTile) {
-            first.setStroke(EMPTY_TILE_BORDER_COLOR);
-            second.setStroke(EMPTY_TILE_BORDER_COLOR);
-        } else {
+        if (tileAlignment == TileAlignment.ENEMY) {
             first.setStroke(ENEMY_SHIP_TILE_BORDER_COLOR);
             second.setStroke(ENEMY_SHIP_TILE_BORDER_COLOR);
+        } else {
+            first.setStroke(NEUTRAL_TILE_BORDER_COLOR);
+            second.setStroke(NEUTRAL_TILE_BORDER_COLOR);
         }
 
         this.getChildren().add(first);

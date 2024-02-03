@@ -18,7 +18,7 @@ public class Board {
 
         for (int row = 0; row < DEFAULT_GRID_SIZE; row++) {
             for (int column = 0; column < DEFAULT_GRID_SIZE; column++) {
-                Cell cell = new Cell(isPlayerBoard);
+                Cell cell = new Cell();
                 this.getGrid().add(cell, column, row);
             }
         }

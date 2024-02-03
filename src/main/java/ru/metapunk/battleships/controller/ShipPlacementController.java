@@ -13,6 +13,7 @@ import javafx.scene.text.Font;
 import ru.metapunk.battleships.model.ship.ShipType;
 import ru.metapunk.battleships.model.Board;
 import ru.metapunk.battleships.model.tile.Cell;
+import ru.metapunk.battleships.model.tile.TileAlignment;
 import ru.metapunk.battleships.model.tile.TileType;
 
 public class ShipPlacementController {
@@ -91,21 +92,21 @@ public class ShipPlacementController {
 
         switch (shipType) {
             case BATTLESHIP -> {
-                shipPane.addColumn(0, new Cell(TileType.LEFTMOST_HORIZONTAL, true, true));
-                shipPane.addColumn(1, new Cell(TileType.BRIDGE_HORIZONTAL, true, true));
-                shipPane.addColumn(2, new Cell(TileType.BRIDGE_HORIZONTAL, true, true));
-                shipPane.addColumn(3, new Cell(TileType.RIGHTMOST_HORIZONTAL, true, true));
+                shipPane.addColumn(0, new Cell(TileType.LEFTMOST_HORIZONTAL, TileAlignment.PLAYER, true));
+                shipPane.addColumn(1, new Cell(TileType.BRIDGE_HORIZONTAL, TileAlignment.PLAYER, true));
+                shipPane.addColumn(2, new Cell(TileType.BRIDGE_HORIZONTAL, TileAlignment.PLAYER, true));
+                shipPane.addColumn(3, new Cell(TileType.RIGHTMOST_HORIZONTAL, TileAlignment.PLAYER, true));
             }
             case DESTROYER -> {
-                shipPane.addColumn(0, new Cell(TileType.LEFTMOST_HORIZONTAL, true, true));
-                shipPane.addColumn(1, new Cell(TileType.BRIDGE_HORIZONTAL, true, true));
-                shipPane.addColumn(2, new Cell(TileType.RIGHTMOST_HORIZONTAL, true, true));
+                shipPane.addColumn(0, new Cell(TileType.LEFTMOST_HORIZONTAL, TileAlignment.PLAYER, true));
+                shipPane.addColumn(1, new Cell(TileType.BRIDGE_HORIZONTAL, TileAlignment.PLAYER, true));
+                shipPane.addColumn(2, new Cell(TileType.RIGHTMOST_HORIZONTAL, TileAlignment.PLAYER, true));
             }
             case CRUISER -> {
-                shipPane.addColumn(0, new Cell(TileType.LEFTMOST_HORIZONTAL, true, true));
-                shipPane.addColumn(1, new Cell(TileType.RIGHTMOST_HORIZONTAL, true, true));
+                shipPane.addColumn(0, new Cell(TileType.LEFTMOST_HORIZONTAL, TileAlignment.PLAYER, true));
+                shipPane.addColumn(1, new Cell(TileType.RIGHTMOST_HORIZONTAL, TileAlignment.PLAYER, true));
             }
-            case SUBMARINE -> shipPane.addColumn(0, new Cell(TileType.SINGULAR, true, true));
+            case SUBMARINE -> shipPane.addColumn(0, new Cell(TileType.SINGULAR, TileAlignment.PLAYER, true));
         }
 
         return shipPane;
@@ -259,6 +260,7 @@ public class ShipPlacementController {
 
         for (int i = 0; i < shipSize; i++) {
             shipCells[i].setHasShip(true);
+            shipCells[i].setTileAlignment(TileAlignment.PLAYER);
             shipCells[i].setTileType(findTileType(i));
             shipCells[i].applyTileStyle();
         }
@@ -313,7 +315,7 @@ public class ShipPlacementController {
     public void initialize() {
         for (int row = 0; row < Board.DEFAULT_GRID_SIZE; row++) {
             for (int column = 0; column < Board.DEFAULT_GRID_SIZE; column++) {
-                Cell cell = new Cell(true);
+                Cell cell = new Cell();
 
                 cell.setOnMouseClicked(e -> handleGridCellClick(e, cell));
                 shipPlacementGrid.add(cell, column, row);
