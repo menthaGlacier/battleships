@@ -24,7 +24,7 @@ public class ShipPlacementController {
     @FXML
     private VBox availableShipsVbox;
 
-    private final Cell[][] shipsCellGrid;
+    private final Cell[][] shipPlacementCells;
 
     private final GridPane battleshipGrid;
     private final GridPane destroyerGrid;
@@ -44,7 +44,7 @@ public class ShipPlacementController {
     private boolean isSelectedShipHorizontal;
 
     public ShipPlacementController() {
-        this.shipsCellGrid = new Cell[Board.DEFAULT_GRID_SIZE][Board.DEFAULT_GRID_SIZE];
+        this.shipPlacementCells = new Cell[Board.DEFAULT_GRID_SIZE][Board.DEFAULT_GRID_SIZE];
 
         this.battleshipsAvailable = 1;
         this.destroyersAvailable = 2;
@@ -112,41 +112,18 @@ public class ShipPlacementController {
         return shipPane;
     }
 
-    private void updateAvailableShipsVbox(ShipType typeUsed) {
-        switch (typeUsed) {
-            case BATTLESHIP -> {
-                battleshipsAvailable -= 1;
-                battleshipLabel.setText("x" + battleshipsAvailable);
+    private void updateAvailableShipsVbox() {
+        battleshipLabel.setText("x" + battleshipsAvailable);
+        battleshipGrid.disableProperty().set(battleshipsAvailable <= 0);
 
-                if (battleshipsAvailable <= 0) {
-                    battleshipGrid.disableProperty().set(true);
-                }
-            }
-            case DESTROYER -> {
-                destroyersAvailable -= 1;
-                destroyerLabel.setText("x" + destroyersAvailable);
+        destroyerLabel.setText("x" + destroyersAvailable);
+        destroyerGrid.disableProperty().set(destroyersAvailable <= 0);
 
-                if (destroyersAvailable <= 0) {
-                    destroyerGrid.disableProperty().set(true);
-                }
-            }
-            case CRUISER -> {
-                cruisersAvailable -= 1;
-                cruiserLabel.setText("x" + cruisersAvailable);
+        cruiserLabel.setText("x" + cruisersAvailable);
+        cruiserGrid.disableProperty().set(cruisersAvailable <= 0);
 
-                if (cruisersAvailable <= 0) {
-                    cruiserGrid.disableProperty().set(true);
-                }
-            }
-            case SUBMARINE -> {
-                submarinesAvailable -= 1;
-                submarineLabel.setText("x" + submarinesAvailable);
-
-                if (submarinesAvailable <= 0) {
-                    submarineGrid.disableProperty().set(true);
-                }
-            }
-        }
+        submarineLabel.setText("x" + submarinesAvailable);
+        submarineGrid.disableProperty().set(submarinesAvailable <= 0);
     }
 
     private void handleRootMouseMove(MouseEvent event) {
@@ -220,7 +197,7 @@ public class ShipPlacementController {
             return null;
         }
 
-        return shipsCellGrid[row][column];
+        return shipPlacementCells[row][column];
     }
 
     private void markCell(Cell cell) {
@@ -265,7 +242,14 @@ public class ShipPlacementController {
             shipCells[i].applyTileStyle();
         }
 
-        updateAvailableShipsVbox(selectedShipType);
+        switch (selectedShipType) {
+            case BATTLESHIP -> battleshipsAvailable -= 1;
+            case DESTROYER -> destroyersAvailable -= 1;
+            case CRUISER -> cruisersAvailable -= 1;
+            case SUBMARINE -> submarinesAvailable -= 1;
+        }
+
+        updateAvailableShipsVbox();
         markAdjustmentTiles(startRow, startColumn);
     }
 
@@ -312,6 +296,31 @@ public class ShipPlacementController {
     }
 
     @FXML
+    private void handleClearButtonClick() {
+        shipPlacementGrid.getChildren().clear();
+        for (int row = 0; row < Board.DEFAULT_GRID_SIZE; row++) {
+            for (int column = 0; column < Board.DEFAULT_GRID_SIZE; column++) {
+                Cell cell = new Cell();
+
+                cell.setOnMouseClicked(e -> handleGridCellClick(e, cell));
+                shipPlacementGrid.add(cell, column, row);
+                shipPlacementCells[row][column] = cell;
+            }
+        }
+
+        battleshipsAvailable = 1;
+        destroyersAvailable = 2;
+        cruisersAvailable = 3;
+        submarinesAvailable = 4;
+        updateAvailableShipsVbox();
+    }
+
+    @FXML
+    private void handleConfirmButtonClick() {
+        // TODO
+    }
+
+    @FXML
     public void initialize() {
         for (int row = 0; row < Board.DEFAULT_GRID_SIZE; row++) {
             for (int column = 0; column < Board.DEFAULT_GRID_SIZE; column++) {
@@ -319,7 +328,7 @@ public class ShipPlacementController {
 
                 cell.setOnMouseClicked(e -> handleGridCellClick(e, cell));
                 shipPlacementGrid.add(cell, column, row);
-                shipsCellGrid[row][column] = cell;
+                shipPlacementCells[row][column] = cell;
             }
         }
 
