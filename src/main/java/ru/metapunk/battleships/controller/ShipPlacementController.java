@@ -26,10 +26,10 @@ public class ShipPlacementController {
 
     private final Cell[][] shipPlacementCells;
 
-    private final GridPane battleshipGrid;
-    private final GridPane destroyerGrid;
-    private final GridPane cruiserGrid;
-    private final GridPane submarineGrid;
+    private final GridPane battleshipGridPane;
+    private final GridPane destroyerGridPane;
+    private final GridPane cruiserGridPane;
+    private final GridPane submarineGridPane;
     private final Label battleshipLabel;
     private final Label destroyerLabel;
     private final Label cruiserLabel;
@@ -39,6 +39,7 @@ public class ShipPlacementController {
     private int destroyersAvailable;
     private int cruisersAvailable;
     private int submarinesAvailable;
+
     private final Rectangle selectedShip;
     private ShipType selectedShipType;
     private boolean isSelectedShipHorizontal;
@@ -54,59 +55,42 @@ public class ShipPlacementController {
         this.selectedShip = new Rectangle();
         this.selectedShip.visibleProperty().set(false);
         this.selectedShip.mouseTransparentProperty().set(true);
-        this.selectedShipType = ShipType.SUBMARINE;
+        this.selectedShipType = null;
         this.isSelectedShipHorizontal = true;
 
-        this.battleshipGrid = generateShipPane(ShipType.BATTLESHIP);
-        this.destroyerGrid = generateShipPane(ShipType.DESTROYER);
-        this.cruiserGrid = generateShipPane(ShipType.CRUISER);
-        this.submarineGrid = generateShipPane(ShipType.SUBMARINE);
+        this.battleshipGridPane = generateShipPane(ShipType.BATTLESHIP);
+        this.destroyerGridPane = generateShipPane(ShipType.DESTROYER);
+        this.cruiserGridPane = generateShipPane(ShipType.CRUISER);
+        this.submarineGridPane = generateShipPane(ShipType.SUBMARINE);
 
-        this.battleshipLabel = new Label("x" + battleshipsAvailable);
-        this.battleshipLabel.setFont(new Font(22));
-        this.battleshipLabel.setAlignment(Pos.CENTER);
-        this.battleshipGrid.addColumn(4, battleshipLabel);
-        this.battleshipLabel.setPrefSize(Cell.TILE_SIZE, Cell.TILE_SIZE);
+        this.battleshipLabel = generateShipLabel(battleshipsAvailable);
+        this.battleshipGridPane.addColumn(4, battleshipLabel);
 
-        this.destroyerLabel = new Label("x" + destroyersAvailable);
-        this.destroyerLabel.setFont(new Font(22));
-        this.destroyerLabel.setAlignment(Pos.CENTER);
-        this.destroyerGrid.addColumn(4, destroyerLabel);
-        this.destroyerLabel.setPrefSize(Cell.TILE_SIZE, Cell.TILE_SIZE);
+        this.destroyerLabel = generateShipLabel(destroyersAvailable);
+        this.destroyerGridPane.addColumn(4, destroyerLabel);
 
-        this.cruiserLabel = new Label("x" + cruisersAvailable);
-        this.cruiserLabel.setFont(new Font(22));
-        this.cruiserLabel.setAlignment(Pos.CENTER);
-        this.cruiserGrid.addColumn(4, cruiserLabel);
-        this.cruiserLabel.setPrefSize(Cell.TILE_SIZE, Cell.TILE_SIZE);
+        this.cruiserLabel = generateShipLabel(cruisersAvailable);
+        this.cruiserGridPane.addColumn(4, cruiserLabel);
 
-        this.submarineLabel = new Label("x" + submarinesAvailable);
-        this.submarineLabel.setFont(new Font(22));
-        this.submarineLabel.setAlignment(Pos.CENTER);
-        this.submarineGrid.addColumn(4, submarineLabel);
-        this.submarineLabel.setPrefSize(Cell.TILE_SIZE, Cell.TILE_SIZE);
+        this.submarineLabel = generateShipLabel(submarinesAvailable);
+        this.submarineGridPane.addColumn(4, submarineLabel);
+    }
+
+    private Label generateShipLabel(int shipsAvailable) {
+        Label shipLabel = new Label("x" + shipsAvailable);
+        shipLabel.setFont(new Font(22));
+        shipLabel.setAlignment(Pos.CENTER);
+        shipLabel.setPrefSize(Cell.TILE_SIZE, Cell.TILE_SIZE);
+
+        return shipLabel;
     }
 
     private GridPane generateShipPane(ShipType shipType) {
         GridPane shipPane = new GridPane();
 
-        switch (shipType) {
-            case BATTLESHIP -> {
-                shipPane.addColumn(0, new Cell(TileType.LEFTMOST_HORIZONTAL, TileAlignment.PLAYER, true));
-                shipPane.addColumn(1, new Cell(TileType.BRIDGE_HORIZONTAL, TileAlignment.PLAYER, true));
-                shipPane.addColumn(2, new Cell(TileType.BRIDGE_HORIZONTAL, TileAlignment.PLAYER, true));
-                shipPane.addColumn(3, new Cell(TileType.RIGHTMOST_HORIZONTAL, TileAlignment.PLAYER, true));
-            }
-            case DESTROYER -> {
-                shipPane.addColumn(0, new Cell(TileType.LEFTMOST_HORIZONTAL, TileAlignment.PLAYER, true));
-                shipPane.addColumn(1, new Cell(TileType.BRIDGE_HORIZONTAL, TileAlignment.PLAYER, true));
-                shipPane.addColumn(2, new Cell(TileType.RIGHTMOST_HORIZONTAL, TileAlignment.PLAYER, true));
-            }
-            case CRUISER -> {
-                shipPane.addColumn(0, new Cell(TileType.LEFTMOST_HORIZONTAL, TileAlignment.PLAYER, true));
-                shipPane.addColumn(1, new Cell(TileType.RIGHTMOST_HORIZONTAL, TileAlignment.PLAYER, true));
-            }
-            case SUBMARINE -> shipPane.addColumn(0, new Cell(TileType.SINGULAR, TileAlignment.PLAYER, true));
+        for (int i = 0; i < shipType.getSize(); i++) {
+            shipPane.addColumn(i, new Cell(findTileType(i, shipType),
+                    TileAlignment.PLAYER, true));
         }
 
         return shipPane;
@@ -114,16 +98,16 @@ public class ShipPlacementController {
 
     private void updateAvailableShipsVbox() {
         battleshipLabel.setText("x" + battleshipsAvailable);
-        battleshipGrid.disableProperty().set(battleshipsAvailable <= 0);
+        battleshipGridPane.disableProperty().set(battleshipsAvailable <= 0);
 
         destroyerLabel.setText("x" + destroyersAvailable);
-        destroyerGrid.disableProperty().set(destroyersAvailable <= 0);
+        destroyerGridPane.disableProperty().set(destroyersAvailable <= 0);
 
         cruiserLabel.setText("x" + cruisersAvailable);
-        cruiserGrid.disableProperty().set(cruisersAvailable <= 0);
+        cruiserGridPane.disableProperty().set(cruisersAvailable <= 0);
 
         submarineLabel.setText("x" + submarinesAvailable);
-        submarineGrid.disableProperty().set(submarinesAvailable <= 0);
+        submarineGridPane.disableProperty().set(submarinesAvailable <= 0);
     }
 
     private void handleRootMouseMove(MouseEvent event) {
@@ -147,21 +131,20 @@ public class ShipPlacementController {
     }
 
     private void handleShipGridClick(MouseEvent event, GridPane shipGrid) {
-        if (shipGrid == battleshipGrid) {
+        if (shipGrid == battleshipGridPane) {
             selectedShipType = ShipType.BATTLESHIP;
-        } else if (shipGrid == destroyerGrid) {
+        } else if (shipGrid == destroyerGridPane) {
             selectedShipType = ShipType.DESTROYER;
-        } else if (shipGrid == cruiserGrid) {
+        } else if (shipGrid == cruiserGridPane) {
             selectedShipType = ShipType.CRUISER;
-        } else if (shipGrid == submarineGrid) {
+        } else if (shipGrid == submarineGridPane) {
             selectedShipType = ShipType.SUBMARINE;
         }
 
-        selectedShip.setWidth(Cell.TILE_SIZE * selectedShipType.getSize());
-        selectedShip.setHeight(Cell.TILE_SIZE);
-
         selectedShip.setX(event.getX());
         selectedShip.setY(event.getY());
+        selectedShip.setHeight(Cell.TILE_SIZE);
+        selectedShip.setWidth(Cell.TILE_SIZE * selectedShipType.getSize());
         selectedShip.setFill(Cell.PLAYER_SHIP_TILE_FILL_COLOR);
         selectedShip.setStroke(Cell.PLAYER_SHIP_TILE_BORDER_COLOR);
         selectedShip.visibleProperty().set(true);
@@ -238,7 +221,7 @@ public class ShipPlacementController {
         for (int i = 0; i < shipSize; i++) {
             shipCells[i].setHasShip(true);
             shipCells[i].setTileAlignment(TileAlignment.PLAYER);
-            shipCells[i].setTileType(findTileType(i));
+            shipCells[i].setTileType(findTileType(i, selectedShipType));
             shipCells[i].applyTileStyle();
         }
 
@@ -253,8 +236,8 @@ public class ShipPlacementController {
         markAdjustmentTiles(startRow, startColumn);
     }
 
-    private TileType findTileType(int index) {
-        int shipSize = selectedShipType.getSize();
+    private TileType findTileType(int index, ShipType shipType) {
+        int shipSize = shipType.getSize();
 
         if (shipSize == 1) {
             return TileType.SINGULAR;
@@ -332,17 +315,17 @@ public class ShipPlacementController {
             }
         }
 
-        this.availableShipsVbox.getChildren().addAll(battleshipGrid,
-                destroyerGrid, cruiserGrid, submarineGrid);
+        this.availableShipsVbox.getChildren().addAll(battleshipGridPane,
+                destroyerGridPane, cruiserGridPane, submarineGridPane);
 
-        this.battleshipGrid.setOnMouseClicked(e ->
-                handleShipGridClick(e, battleshipGrid));
-        this.destroyerGrid.setOnMouseClicked(e ->
-                handleShipGridClick(e, destroyerGrid));
-        this.cruiserGrid.setOnMouseClicked(e ->
-                handleShipGridClick(e, cruiserGrid));
-        this.submarineGrid.setOnMouseClicked(e ->
-                handleShipGridClick(e, submarineGrid));
+        this.battleshipGridPane.setOnMouseClicked(e ->
+                handleShipGridClick(e, battleshipGridPane));
+        this.destroyerGridPane.setOnMouseClicked(e ->
+                handleShipGridClick(e, destroyerGridPane));
+        this.cruiserGridPane.setOnMouseClicked(e ->
+                handleShipGridClick(e, cruiserGridPane));
+        this.submarineGridPane.setOnMouseClicked(e ->
+                handleShipGridClick(e, submarineGridPane));
 
         this.root.getChildren().add(selectedShip);
         this.root.setOnMouseClicked(this::handleRootMouseClick);
