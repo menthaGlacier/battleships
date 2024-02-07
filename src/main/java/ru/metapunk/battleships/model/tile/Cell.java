@@ -21,18 +21,18 @@ public class Cell extends StackPane {
     private final Pane tile;
     private TileType tileType;
     private TileAlignment tileAlignment;
-    private boolean hasShip;
+    private TileShipPresence shipPresence;
     private boolean bombarded;
 
     public Cell() {
-        this(TileType.SINGULAR, TileAlignment.NEUTRAL, false);
+        this(TileType.SINGULAR, TileAlignment.NEUTRAL, TileShipPresence.ABSENT);
     }
 
-    public Cell(TileType tileType, TileAlignment tileAlignment, boolean hasShip) {
+    public Cell(TileType tileType, TileAlignment tileAlignment, TileShipPresence shipPresence) {
         this.tile = new Pane();
         this.tileType = tileType;
         this.tileAlignment = tileAlignment;
-        this.hasShip = hasShip;
+        this.shipPresence = shipPresence;
         this.bombarded = false;
 
         this.getTile().setPrefSize(TILE_SIZE, TILE_SIZE);
@@ -45,7 +45,7 @@ public class Cell extends StackPane {
     }
 
     public Cell(TileAlignment tileAlignment) {
-        this(TileType.SINGULAR, tileAlignment, false);
+        this(TileType.SINGULAR, tileAlignment, TileShipPresence.ABSENT);
     }
 
     private void handleMouseEvents() {
@@ -86,12 +86,16 @@ public class Cell extends StackPane {
         this.tileAlignment = tileAlignment;
     }
 
-    public boolean getHasShip() {
-        return this.hasShip;
+    public TileShipPresence getShipPresence() {
+        return this.shipPresence;
     }
 
-    public void setHasShip(boolean hasShip) {
-        this.hasShip = hasShip;
+    public void setShipPresence(TileShipPresence shipPresence) {
+        this.shipPresence = shipPresence;
+    }
+
+    public void setHasShip(TileShipPresence shipPresence) {
+        this.shipPresence = shipPresence;
     }
 
     public boolean getBombarded() {
@@ -129,12 +133,9 @@ public class Cell extends StackPane {
     private String getBorderColorStyle() {
         String color = "-fx-border-color: ";
 
-        if (!this.getHasShip()) {
-            color += (colorToRgbaString(NEUTRAL_TILE_BORDER_COLOR) + ";");
-        } else {
+        if (shipPresence == TileShipPresence.PRESENT) {
             switch (this.getTileType()) {
-                case SINGULAR ->
-                        color += "holder holder holder holder;";
+                case SINGULAR -> color += "holder holder holder holder;";
                 case UPMOST_VERTICAL ->
                         color += "holder holder transparent holder;";
                 case BOTTOMMOST_VERTICAL ->
@@ -157,6 +158,8 @@ public class Cell extends StackPane {
                         colorToRgbaString(ENEMY_SHIP_TILE_BORDER_COLOR)
                 );
             }
+        } else {
+            color += (colorToRgbaString(NEUTRAL_TILE_BORDER_COLOR) + ";");
         }
 
         return color;

@@ -11,20 +11,21 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import ru.metapunk.battleships.model.ship.ShipType;
-import ru.metapunk.battleships.model.Board;
+import ru.metapunk.battleships.model.board.Board;
 import ru.metapunk.battleships.model.tile.Cell;
 import ru.metapunk.battleships.model.tile.TileAlignment;
+import ru.metapunk.battleships.model.tile.TileShipPresence;
 import ru.metapunk.battleships.model.tile.TileType;
 
-public class ShipPlacementController {
+public class PlacementController {
     @FXML
     private AnchorPane root;
     @FXML
-    private GridPane shipPlacementGrid;
+    private Board board;
     @FXML
     private VBox availableShipsVbox;
 
-    private final Cell[][] shipPlacementCells;
+    private final Cell[][] cells;
 
     private final GridPane battleshipGridPane;
     private final GridPane destroyerGridPane;
@@ -40,21 +41,21 @@ public class ShipPlacementController {
     private int cruisersAvailable;
     private int submarinesAvailable;
 
-    private final Rectangle selectedShip;
+    private final Rectangle selectedShipRectangle;
     private ShipType selectedShipType;
     private boolean isSelectedShipHorizontal;
 
-    public ShipPlacementController() {
-        this.shipPlacementCells = new Cell[Board.DEFAULT_GRID_SIZE][Board.DEFAULT_GRID_SIZE];
+    public PlacementController() {
+        this.cells = new Cell[Board.DEFAULT_ROWS][Board.DEFAULT_COLUMNS];
 
         this.battleshipsAvailable = 1;
         this.destroyersAvailable = 2;
         this.cruisersAvailable = 3;
         this.submarinesAvailable = 4;
 
-        this.selectedShip = new Rectangle();
-        this.selectedShip.visibleProperty().set(false);
-        this.selectedShip.mouseTransparentProperty().set(true);
+        this.selectedShipRectangle = new Rectangle();
+        this.selectedShipRectangle.visibleProperty().set(false);
+        this.selectedShipRectangle.mouseTransparentProperty().set(true);
         this.selectedShipType = null;
         this.isSelectedShipHorizontal = true;
 
@@ -90,7 +91,7 @@ public class ShipPlacementController {
 
         for (int i = 0; i < shipType.getSize(); i++) {
             shipPane.addColumn(i, new Cell(findTileType(i, shipType),
-                    TileAlignment.PLAYER, true));
+                    TileAlignment.PLAYER, TileShipPresence.PRESENT));
         }
 
         return shipPane;
@@ -111,19 +112,19 @@ public class ShipPlacementController {
     }
 
     private void handleRootMouseMove(MouseEvent event) {
-        if (selectedShip.isVisible()) {
-            selectedShip.setX(event.getX());
-            selectedShip.setY(event.getY());
+        if (selectedShipRectangle.isVisible()) {
+            selectedShipRectangle.setX(event.getX());
+            selectedShipRectangle.setY(event.getY());
         }
     }
 
     private void handleRootMouseClick(MouseEvent event) {
-        if (!selectedShip.isVisible()) {
+        if (!selectedShipRectangle.isVisible()) {
             return;
         }
 
         if (event.getButton() == MouseButton.PRIMARY) {
-            selectedShip.visibleProperty().set(false);
+            selectedShipRectangle.visibleProperty().set(false);
         } else if (event.getButton() == MouseButton.SECONDARY) {
             isSelectedShipHorizontal = !isSelectedShipHorizontal;
             rotateSelectedShip();
@@ -141,13 +142,13 @@ public class ShipPlacementController {
             selectedShipType = ShipType.SUBMARINE;
         }
 
-        selectedShip.setX(event.getX());
-        selectedShip.setY(event.getY());
-        selectedShip.setHeight(Cell.TILE_SIZE);
-        selectedShip.setWidth(Cell.TILE_SIZE * selectedShipType.getSize());
-        selectedShip.setFill(Cell.PLAYER_SHIP_TILE_FILL_COLOR);
-        selectedShip.setStroke(Cell.PLAYER_SHIP_TILE_BORDER_COLOR);
-        selectedShip.visibleProperty().set(true);
+        selectedShipRectangle.setX(event.getX());
+        selectedShipRectangle.setY(event.getY());
+        selectedShipRectangle.setHeight(Cell.TILE_SIZE);
+        selectedShipRectangle.setWidth(Cell.TILE_SIZE * selectedShipType.getSize());
+        selectedShipRectangle.setFill(Cell.PLAYER_SHIP_TILE_FILL_COLOR);
+        selectedShipRectangle.setStroke(Cell.PLAYER_SHIP_TILE_BORDER_COLOR);
+        selectedShipRectangle.visibleProperty().set(true);
 
         isSelectedShipHorizontal = true;
         event.consume();
@@ -175,24 +176,24 @@ public class ShipPlacementController {
 
     private Cell getCellFromGrid(int row, int column) {
         if (row < 0 || column < 0
-                || row >= Board.DEFAULT_GRID_SIZE
-                || column >= Board.DEFAULT_GRID_SIZE) {
+                || row >= Board.DEFAULT_ROWS || column >= Board.DEFAULT_COLUMNS) {
             return null;
         }
 
-        return shipPlacementCells[row][column];
+        return cells[row][column];
     }
 
     private void markCell(Cell cell) {
         if (cell != null) {
-            cell.setHasShip(true);
+            cell.setShipPresence(TileShipPresence.NEIGHBORING);
             cell.putXMark();
         }
     }
 
     private void handleGridCellClick(MouseEvent e, Cell cell) {
         if (e.getButton() == MouseButton.SECONDARY ||
-                !selectedShip.isVisible() || cell.getHasShip()) {
+                !selectedShipRectangle.isVisible() ||
+                cell.getShipPresence() != TileShipPresence.ABSENT) {
             return;
         }
 
@@ -213,13 +214,14 @@ public class ShipPlacementController {
                 shipCells[i] = getCellFromGrid(startRow + i, startColumn);
             }
 
-            if (shipCells[i] == null || shipCells[i].getHasShip()) {
+            if (shipCells[i] == null ||
+                    shipCells[i].getShipPresence() != TileShipPresence.ABSENT) {
                 return;
             }
         }
 
         for (int i = 0; i < shipSize; i++) {
-            shipCells[i].setHasShip(true);
+            shipCells[i].setShipPresence(TileShipPresence.PRESENT);
             shipCells[i].setTileAlignment(TileAlignment.PLAYER);
             shipCells[i].setTileType(findTileType(i, selectedShipType));
             shipCells[i].applyTileStyle();
@@ -267,27 +269,27 @@ public class ShipPlacementController {
     }
 
     private void rotateSelectedShip() {
-        if (!selectedShip.isVisible()) {
+        if (!selectedShipRectangle.isVisible()) {
             return;
         }
 
-        double oldWidth = selectedShip.getWidth();
-        double oldHeight = selectedShip.getHeight();
+        double oldWidth = selectedShipRectangle.getWidth();
+        double oldHeight = selectedShipRectangle.getHeight();
 
-        selectedShip.setWidth(oldHeight);
-        selectedShip.setHeight(oldWidth);
+        selectedShipRectangle.setWidth(oldHeight);
+        selectedShipRectangle.setHeight(oldWidth);
     }
 
     @FXML
     private void handleClearButtonClick() {
-        shipPlacementGrid.getChildren().clear();
-        for (int row = 0; row < Board.DEFAULT_GRID_SIZE; row++) {
-            for (int column = 0; column < Board.DEFAULT_GRID_SIZE; column++) {
+        board.clear();
+        for (int row = 0; row < Board.DEFAULT_ROWS; row++) {
+            for (int column = 0; column < Board.DEFAULT_COLUMNS; column++) {
                 Cell cell = new Cell();
 
                 cell.setOnMouseClicked(e -> handleGridCellClick(e, cell));
-                shipPlacementGrid.add(cell, column, row);
-                shipPlacementCells[row][column] = cell;
+                board.add(cell, column, row);
+                cells[row][column] = cell;
             }
         }
 
@@ -305,13 +307,13 @@ public class ShipPlacementController {
 
     @FXML
     public void initialize() {
-        for (int row = 0; row < Board.DEFAULT_GRID_SIZE; row++) {
-            for (int column = 0; column < Board.DEFAULT_GRID_SIZE; column++) {
+        for (int row = 0; row < Board.DEFAULT_ROWS; row++) {
+            for (int column = 0; column < Board.DEFAULT_COLUMNS; column++) {
                 Cell cell = new Cell();
 
                 cell.setOnMouseClicked(e -> handleGridCellClick(e, cell));
-                shipPlacementGrid.add(cell, column, row);
-                shipPlacementCells[row][column] = cell;
+                cells[row][column] = cell;
+                board.add(cell, column, row);
             }
         }
 
@@ -327,7 +329,7 @@ public class ShipPlacementController {
         this.submarineGridPane.setOnMouseClicked(e ->
                 handleShipGridClick(e, submarineGridPane));
 
-        this.root.getChildren().add(selectedShip);
+        this.root.getChildren().add(selectedShipRectangle);
         this.root.setOnMouseClicked(this::handleRootMouseClick);
         this.root.setOnMouseMoved(this::handleRootMouseMove);
     }

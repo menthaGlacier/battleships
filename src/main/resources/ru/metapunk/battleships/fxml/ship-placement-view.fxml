@@ -5,8 +5,9 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane fx:id="root" prefHeight="800.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.metapunk.battleships.controller.ShipPlacementController">
-    <GridPane fx:id="shipPlacementGrid" gridLinesVisible="true" layoutX="60.0" layoutY="80.0" />
+<?import ru.metapunk.battleships.model.board.Board?>
+<AnchorPane fx:id="root" prefHeight="800.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.metapunk.battleships.controller.PlacementController">
+    <Board fx:id="board" gridLinesVisible="true" layoutX="60.0" layoutY="80.0" />
     <AnchorPane layoutX="620.0" layoutY="80.0" prefHeight="502.0" prefWidth="260.0" style="-fx-border-color: black; -fx-border-radius: 2;">
         <VBox fx:id="availableShipsVbox" prefHeight="500.0" prefWidth="258.0" spacing="50.0">
             <Label text="Available ships:">
