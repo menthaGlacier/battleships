@@ -1,7 +1,6 @@
 package ru.metapunk.battleships.model.board;
 
 import javafx.scene.layout.GridPane;
-import ru.metapunk.battleships.model.tile.Cell;
 
 public class Board extends GridPane {
     public static final int DEFAULT_ROWS = 10;

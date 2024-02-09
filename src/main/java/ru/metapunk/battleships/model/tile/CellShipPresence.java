@@ -1,6 +1,6 @@
 package ru.metapunk.battleships.model.tile;
 
-public enum TileShipPresence {
+public enum CellShipPresence {
     ABSENT,
     NEIGHBORING,
     PRESENT

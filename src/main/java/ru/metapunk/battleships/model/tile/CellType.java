@@ -1,6 +1,6 @@
 package ru.metapunk.battleships.model.tile;
 
-public enum TileType {
+public enum CellType {
     SINGULAR,
     UPMOST_VERTICAL,
     BOTTOMMOST_VERTICAL,

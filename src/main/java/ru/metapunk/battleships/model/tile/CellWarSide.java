@@ -1,6 +1,6 @@
 package ru.metapunk.battleships.model.tile;
 
-public enum TileAlignment {
+public enum CellWarSide {
     NEUTRAL,
     PLAYER,
     ENEMY
