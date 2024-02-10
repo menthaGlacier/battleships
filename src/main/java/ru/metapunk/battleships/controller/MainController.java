@@ -7,8 +7,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import ru.metapunk.battleships.model.board.Board;
-import ru.metapunk.battleships.model.tile.Cell;
 import ru.metapunk.battleships.model.tile.Tile;
+import ru.metapunk.battleships.model.tile.cell.Cell;
 
 import java.io.IOException;
 
@@ -29,7 +29,6 @@ public class MainController {
             for (int column = 0; column < Board.DEFAULT_COLUMNS; column++) {
                 Tile tile = new Tile(cells[row][column]);
 
-                //tile.setOnMouseClicked(e -> handleTileClick(e, tile));
                 tiles[row][column] = tile;
                 board.add(tile, column, row);
             }

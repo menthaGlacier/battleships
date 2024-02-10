@@ -1,4 +1,4 @@
-package ru.metapunk.battleships.model.tile;
+package ru.metapunk.battleships.model.tile.cell;
 
 public enum CellWarSide {
     NEUTRAL,

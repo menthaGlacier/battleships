@@ -17,7 +17,11 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import ru.metapunk.battleships.model.board.Board;
 import ru.metapunk.battleships.model.ship.ShipType;
-import ru.metapunk.battleships.model.tile.*;
+import ru.metapunk.battleships.model.tile.Tile;
+import ru.metapunk.battleships.model.tile.cell.Cell;
+import ru.metapunk.battleships.model.tile.cell.CellShipPresence;
+import ru.metapunk.battleships.model.tile.cell.CellType;
+import ru.metapunk.battleships.model.tile.cell.CellWarSide;
 
 public class PlacementController {
     @FXML

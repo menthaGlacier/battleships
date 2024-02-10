@@ -5,6 +5,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import ru.metapunk.battleships.model.tile.cell.Cell;
+import ru.metapunk.battleships.model.tile.cell.CellShipPresence;
+import ru.metapunk.battleships.model.tile.cell.CellWarSide;
 
 import java.text.NumberFormat;
 import java.util.Locale;
