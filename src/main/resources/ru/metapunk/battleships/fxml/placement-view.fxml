@@ -38,5 +38,6 @@
        </Button>
        <padding>
          <Insets left="50.0" />
-      </padding></VBox>
+      </padding>
+   </VBox>
 </AnchorPane>

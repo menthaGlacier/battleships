@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<?import ru.metapunk.battleships.model.board.Board?>
+
+<AnchorPane fx:id="root" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.metapunk.battleships.controller.GameController">
+   <Board fx:id="playerBoard" gridLinesVisible="true" layoutX="60.0" layoutY="80.0" />
+   <Board fx:id="enemyBoard" gridLinesVisible="true" layoutX="720.0" layoutY="80.0" />
+   <Label fx:id="warSideTurnLabel" layoutX="560.0" layoutY="20.0" prefHeight="40.0" prefWidth="180.0" text="Your turn">
+      <font>
+         <Font size="30.0" />
+      </font>
+   </Label>
+   <Button mnemonicParsing="false" layoutX="560.0" layoutY="620.0" prefWidth="160.0" text="Surrender">
+      <font>
+         <Font size="20.0" />
+      </font>
+   </Button>
+</AnchorPane>
