@@ -30,7 +30,7 @@ public class Server {
                 new Thread(client).start();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage() + "\n" + e.getCause());
         }
     }
 }

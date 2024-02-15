@@ -1,4 +1,4 @@
 package ru.metapunk.battleships.net.dto;
 
-public class AvailableLobbiesDto {
+public class AvailableLobbiesRequestDto {
 }

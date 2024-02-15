@@ -25,12 +25,12 @@ public class ClientHandler implements Runnable {
                 // TODO
             }
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage() + "\n" + e.getCause());
         } finally {
             try {
                 socket.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage() + "\n" + e.getCause());
             }
         }
     }
@@ -40,7 +40,7 @@ public class ClientHandler implements Runnable {
             out.writeObject(dto);
             out.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage() + "\n" + e.getCause());
         }
     }
 }

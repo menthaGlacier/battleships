@@ -315,28 +315,28 @@ public class PlacementController {
             }
         }
 
-        this.availableShipsVbox.getChildren().addAll(battleshipGridPane,
+        availableShipsVbox.getChildren().addAll(battleshipGridPane,
                 destroyerGridPane, cruiserGridPane, submarineGridPane);
 
-        this.battleshipGridPane.setOnMouseClicked(e ->
+        battleshipGridPane.setOnMouseClicked(e ->
                 handleShipGridClick(e, battleshipGridPane));
-        this.destroyerGridPane.setOnMouseClicked(e ->
+        destroyerGridPane.setOnMouseClicked(e ->
                 handleShipGridClick(e, destroyerGridPane));
-        this.cruiserGridPane.setOnMouseClicked(e ->
+        cruiserGridPane.setOnMouseClicked(e ->
                 handleShipGridClick(e, cruiserGridPane));
-        this.submarineGridPane.setOnMouseClicked(e ->
+        submarineGridPane.setOnMouseClicked(e ->
                 handleShipGridClick(e, submarineGridPane));
 
-        this.battleshipGridPane.disableProperty().bind(
+        battleshipGridPane.disableProperty().bind(
                 battleshipsAvailable.lessThanOrEqualTo(0));
-        this.destroyerGridPane.disableProperty().bind(
+        destroyerGridPane.disableProperty().bind(
                 destroyersAvailable.lessThanOrEqualTo(0));
-        this.cruiserGridPane.disableProperty().bind(
+        cruiserGridPane.disableProperty().bind(
                 cruisersAvailable.lessThanOrEqualTo(0));
-        this.submarineGridPane.disableProperty().bind(
+        submarineGridPane.disableProperty().bind(
                 submarinesAvailable.lessThanOrEqualTo(0));
 
-        this.confirmButton.disableProperty().bind((
+        confirmButton.disableProperty().bind((
                 battleshipsAvailable.lessThanOrEqualTo(0)
                 .and(destroyersAvailable.lessThanOrEqualTo(0))
                 .and(cruisersAvailable.lessThanOrEqualTo(0))
@@ -344,8 +344,8 @@ public class PlacementController {
                 .not()
         );
 
-        this.root.getChildren().add(selectedShipRectangle);
-        this.root.setOnMouseClicked(this::handleRootMouseClick);
-        this.root.setOnMouseMoved(this::handleRootMouseMove);
+        root.getChildren().add(selectedShipRectangle);
+        root.setOnMouseClicked(this::handleRootMouseClick);
+        root.setOnMouseMoved(this::handleRootMouseMove);
     }
 }
