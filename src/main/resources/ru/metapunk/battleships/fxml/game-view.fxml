@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 <?import ru.metapunk.battleships.model.board.Board?>
-
 <AnchorPane fx:id="root" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.metapunk.battleships.controller.GameController">
    <Board fx:id="playerBoard" gridLinesVisible="true" layoutX="60.0" layoutY="80.0" />
    <Board fx:id="enemyBoard" gridLinesVisible="true" layoutX="720.0" layoutY="80.0" />

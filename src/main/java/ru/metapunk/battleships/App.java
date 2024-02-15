@@ -4,19 +4,26 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import ru.metapunk.battleships.net.Client;
 
 import java.io.IOException;
 
 public class App extends Application {
+    private static final int WINDOW_WIDTH = 1280;
+    private static final int WINDOW_HEIGHT = 720;
+
     public static void main(String[] args) {
         launch();
     }
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader loader = new FXMLLoader((getClass().getResource("/ru/metapunk/battleships/fxml/main-view.fxml")));
-        Scene scene = new Scene(loader.load(), 1280, 720);
+        Client client = new Client();
+        FXMLLoader loader = new FXMLLoader((getClass()
+                .getResource("/ru/metapunk/battleships/fxml/main-view.fxml")));
+        Scene scene = new Scene(loader.load(), WINDOW_WIDTH, WINDOW_HEIGHT);
         stage.setTitle("Battleships");
+        stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
     }
