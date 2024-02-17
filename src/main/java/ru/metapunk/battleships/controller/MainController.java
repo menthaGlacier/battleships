@@ -7,6 +7,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import ru.metapunk.battleships.net.Client;
 
 import java.io.IOException;
 
@@ -16,8 +17,10 @@ public class MainController {
     @FXML
     private TextField nicknameTextField;
 
-    public MainController() {
+    private final Client client;
 
+    public MainController() {
+        this.client = new Client();
     }
 
     @FXML
@@ -26,7 +29,7 @@ public class MainController {
         FXMLLoader loader = new FXMLLoader((getClass()
                 .getResource("/ru/metapunk/battleships/fxml/join-game-view.fxml")));
         loader.setControllerFactory(controllerClass->
-                new JoinGameController(dialog));
+                new JoinGameController(dialog, client));
 
         try {
             dialog.setScene(new Scene(loader.load()));
@@ -43,7 +46,7 @@ public class MainController {
 
     @FXML
     private void onHostGameButtonClick() {
-        // TODO
+        client.
     }
 
     @FXML

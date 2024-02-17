@@ -4,7 +4,6 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import ru.metapunk.battleships.net.Client;
 
 import java.io.IOException;
 
@@ -18,7 +17,6 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        Client client = new Client();
         FXMLLoader loader = new FXMLLoader((getClass()
                 .getResource("/ru/metapunk/battleships/fxml/main-view.fxml")));
         Scene scene = new Scene(loader.load(), WINDOW_WIDTH, WINDOW_HEIGHT);

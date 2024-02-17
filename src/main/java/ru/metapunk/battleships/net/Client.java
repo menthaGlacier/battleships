@@ -5,7 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class Client {
+public class Client implements Runnable {
     private static final String SERVER_DEFAULT_ADDRESS = "localhost";
     private static final int SERVER_DEFAULT_PORT = 25821;
 
@@ -14,6 +14,11 @@ public class Client {
     private ObjectOutputStream out;
 
     public Client() {
+
+    }
+
+    @Override
+    public void run() {
         try {
             socket = new Socket(SERVER_DEFAULT_ADDRESS, SERVER_DEFAULT_PORT);
             System.out.println("Connected to server");
@@ -21,9 +26,9 @@ public class Client {
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
 
-            new Thread(this::receiveDto).start();
+            receiveDto();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage() + "\n" + e.getCause());
         }
     }
 

@@ -8,15 +8,18 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import ru.metapunk.battleships.net.Client;
 
 public class JoinGameController {
     @FXML
     private ListView<HBox> lobbyListView;
 
     private final Stage stage;
+    private final Client client;
 
-    public JoinGameController(Stage stage) {
+    public JoinGameController(Stage stage, Client client) {
         this.stage = stage;
+        this.client = client;
     }
 
     private void updateLobbyList() {
