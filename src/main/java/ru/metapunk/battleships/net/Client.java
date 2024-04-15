@@ -1,5 +1,9 @@
 package ru.metapunk.battleships.net;
 
+import ru.metapunk.battleships.net.dto.CreateLobbyResponseDto;
+import ru.metapunk.battleships.net.observer.IClientEventsObserver;
+import ru.metapunk.battleships.net.observer.IClientObserver;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -12,6 +16,7 @@ public class Client implements Runnable {
     private Socket socket;
     private ObjectInputStream in;
     private ObjectOutputStream out;
+    private IClientEventsObserver eventsObserver;
 
     public Client() {
 
@@ -36,10 +41,12 @@ public class Client implements Runnable {
         try {
             Object dto;
             while ((dto = in.readObject()) != null) {
-                // TODO
+                if (dto instanceof CreateLobbyResponseDto) {
+                    ((IClientObserver) eventsObserver).onLobbyCreated();
+                }
             }
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage() + "\n" + e.getCause());
         }
     }
 
@@ -48,7 +55,11 @@ public class Client implements Runnable {
             out.writeObject(dto);
             out.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage() + "\n" + e.getCause());
         }
+    }
+
+    public void setEventsObserver(IClientEventsObserver eventsObserver) {
+        this.eventsObserver = eventsObserver;
     }
 }

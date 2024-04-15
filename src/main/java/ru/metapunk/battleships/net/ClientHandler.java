@@ -1,5 +1,9 @@
 package ru.metapunk.battleships.net;
 
+import ru.metapunk.battleships.net.dto.CreateLobbyRequestDto;
+import ru.metapunk.battleships.net.dto.CreateLobbyResponseDto;
+import ru.metapunk.battleships.net.observer.IClientObserver;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -32,6 +36,19 @@ public class ClientHandler implements Runnable {
             } catch (IOException e) {
                 System.out.println(e.getMessage() + "\n" + e.getCause());
             }
+        }
+    }
+
+    private void receiveDto() {
+        try {
+            Object dto;
+            while ((dto = in.readObject()) != null) {
+                if (dto instanceof CreateLobbyRequestDto) {
+
+                }
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println(e.getMessage() + "\n" + e.getCause());
         }
     }
 

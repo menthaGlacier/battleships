@@ -8,10 +8,11 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import ru.metapunk.battleships.net.Client;
+import ru.metapunk.battleships.net.observer.IClientObserver;
 
 import java.io.IOException;
 
-public class MainController {
+public class MainController implements IClientObserver {
     @FXML
     private AnchorPane root;
     @FXML
@@ -21,6 +22,11 @@ public class MainController {
 
     public MainController() {
         this.client = new Client();
+    }
+
+    @Override
+    public void onLobbyCreated() {
+
     }
 
     @FXML
@@ -46,7 +52,6 @@ public class MainController {
 
     @FXML
     private void onHostGameButtonClick() {
-        client.
     }
 
     @FXML
