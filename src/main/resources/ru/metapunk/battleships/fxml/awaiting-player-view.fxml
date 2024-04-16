@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="200.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.metapunk.battleships.controller.AwaitingPlayerController">
+    <Button layoutX="143.0" layoutY="140.0" mnemonicParsing="false" onAction="#onCancelButtonClick" style="-fx-background-color: transparent;" text="Cancel">
+        <font>
+            <Font size="24.0" />
+        </font>
+    </Button>
+    <Label layoutX="52.0" layoutY="80.0" text="Waiting a player to join...">
+        <font>
+          <Font size="24.0" />
+        </font>
+    </Label>
+</AnchorPane>

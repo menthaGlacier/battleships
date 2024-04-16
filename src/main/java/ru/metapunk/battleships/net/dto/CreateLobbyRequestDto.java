@@ -1,6 +1,8 @@
 package ru.metapunk.battleships.net.dto;
 
-public class CreateLobbyRequestDto {
+import java.io.Serializable;
+
+public class CreateLobbyRequestDto implements Serializable {
     private final String nickname;
 
     public CreateLobbyRequestDto(String nickname) {

@@ -1,14 +1,17 @@
 package ru.metapunk.battleships.net;
 
+import ru.metapunk.battleships.net.dto.CreateLobbyResponseDto;
+import ru.metapunk.battleships.net.dto.OpenLobbiesResponseDto;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Server {
     public final static int DEFAULT_PORT = 25821;
-    private List<ClientHandler> clients = new ArrayList<>();
+    private final List<ClientHandler> clients;
+    private final Map<String, Lobby> lobbies;
 
     private final int port;
 
@@ -18,6 +21,8 @@ public class Server {
 
     public Server(int port) {
         this.port = port;
+        this.clients = new ArrayList<>();
+        this.lobbies = new HashMap<>();
     }
 
     public void serve() {
@@ -25,12 +30,25 @@ public class Server {
             System.out.println("Server started on port " + port);
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                ClientHandler client = new ClientHandler(clientSocket);
+                ClientHandler client = new ClientHandler(this, clientSocket);
                 clients.add(client);
                 new Thread(client).start();
             }
         } catch (IOException e) {
             System.out.println(e.getMessage() + "\n" + e.getCause());
         }
+    }
+
+    public void handleCreateLobbyRequest(ClientHandler client) {
+        String lobbyId = UUID.randomUUID().toString();
+        Lobby lobby = new Lobby(lobbyId);
+        lobby.setPlayerOne(client);
+        lobbies.put(lobbyId, lobby);
+        client.sendDto(new CreateLobbyResponseDto());
+    }
+
+    public void handleOpenLobbiesRequest(ClientHandler client) {
+        List<Lobby> lobbyList = new ArrayList<>(lobbies.values());
+        client.sendDto(new OpenLobbiesResponseDto(lobbyList));
     }
 }
