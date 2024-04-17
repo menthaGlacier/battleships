@@ -9,7 +9,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import ru.metapunk.battleships.net.Client;
-import ru.metapunk.battleships.net.dto.CreateLobbyRequestDto;
+import ru.metapunk.battleships.net.dto.request.CreateLobbyRequestDto;
 import ru.metapunk.battleships.net.observer.IClientObserver;
 
 import java.io.IOException;
@@ -47,6 +47,8 @@ public class MainController implements IClientObserver {
         dialog.initModality(Modality.WINDOW_MODAL);
         dialog.initOwner(root.getScene().getWindow());
         dialog.showAndWait();
+
+        client.setEventsObserver(this);
     }
 
     @FXML
@@ -89,5 +91,4 @@ public class MainController implements IClientObserver {
             client.setEventsObserver(this);
         });
     }
-
 }

@@ -1,9 +1,10 @@
 package ru.metapunk.battleships.net;
 
-import ru.metapunk.battleships.net.dto.CreateLobbyResponseDto;
-import ru.metapunk.battleships.net.dto.OpenLobbiesResponseDto;
+import ru.metapunk.battleships.net.dto.response.CreateLobbyResponseDto;
+import ru.metapunk.battleships.net.dto.response.OpenLobbiesResponseDto;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
@@ -29,20 +30,28 @@ public class Server {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server started on port " + port);
             while (true) {
-                Socket clientSocket = serverSocket.accept();
-                ClientHandler client = new ClientHandler(this, clientSocket);
-                clients.add(client);
-                new Thread(client).start();
+                synchronized (clients) {
+                    Socket clientSocket = serverSocket.accept();
+                    ClientHandler client = new ClientHandler(this, clientSocket);
+                    clients.add(client);
+                    new Thread(client).start();
+                }
             }
         } catch (IOException e) {
             System.out.println(e.getMessage() + "\n" + e.getCause());
         }
     }
 
-    public void handleCreateLobbyRequest(ClientHandler client) {
+    public void disconnect(InetSocketAddress address) {
+        synchronized (clients) {
+            clients.removeIf(client -> client.getInetSocketAddress().equals(address));
+        }
+    }
+
+    public void handleCreateLobbyRequest(ClientHandler client, String nickname) {
         String lobbyId = UUID.randomUUID().toString();
         Lobby lobby = new Lobby(lobbyId);
-        lobby.setPlayerOne(client);
+        lobby.setPlayerOne(client, nickname);
         lobbies.put(lobbyId, lobby);
         client.sendDto(new CreateLobbyResponseDto());
     }

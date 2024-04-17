@@ -1,4 +1,4 @@
-package ru.metapunk.battleships.net.dto;
+package ru.metapunk.battleships.net.dto.request;
 
 import java.io.Serializable;
 

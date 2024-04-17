@@ -1,12 +1,12 @@
 package ru.metapunk.battleships.net;
 
-import ru.metapunk.battleships.net.dto.CreateLobbyRequestDto;
-import ru.metapunk.battleships.net.dto.OpenLobbiesRequestDto;
-import ru.metapunk.battleships.net.dto.OpenLobbiesResponseDto;
+import ru.metapunk.battleships.net.dto.request.CreateLobbyRequestDto;
+import ru.metapunk.battleships.net.dto.request.OpenLobbiesRequestDto;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class ClientHandler implements Runnable {
@@ -18,33 +18,23 @@ public class ClientHandler implements Runnable {
     public ClientHandler(Server server, Socket socket) {
         this.server = server;
         this.socket = socket;
+
+        try {
+            this.out = new ObjectOutputStream(socket.getOutputStream());
+            this.in = new ObjectInputStream(socket.getInputStream());
+        } catch (IOException e) {
+            System.out.println(e.getMessage() + "\n" + e.getCause());
+        }
     }
 
     @Override
     public void run() {
         try {
-            in = new ObjectInputStream(socket.getInputStream());
-            out = new ObjectOutputStream(socket.getOutputStream());
-
-            receiveDto();
-        } catch (IOException e) {
-            System.out.println(e.getMessage() + "\n" + e.getCause());
-        } finally {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                System.out.println(e.getMessage() + "\n" + e.getCause());
-            }
-        }
-    }
-
-    private void receiveDto() {
-        try {
             Object dto;
             while ((dto = in.readObject()) != null) {
-                System.out.println("Received DTO " + dto);
                 if (dto instanceof CreateLobbyRequestDto) {
-                    server.handleCreateLobbyRequest(this);
+                    String nickname = ((CreateLobbyRequestDto) dto).getNickname();
+                    server.handleCreateLobbyRequest(this, nickname);
                 }
 
                 if (dto instanceof OpenLobbiesRequestDto) {
@@ -53,6 +43,13 @@ public class ClientHandler implements Runnable {
             }
         } catch (IOException | ClassNotFoundException e) {
             System.out.println(e.getMessage() + "\n" + e.getCause());
+        } finally {
+            try {
+                server.disconnect((InetSocketAddress) socket.getRemoteSocketAddress());
+                socket.close();
+            } catch (IOException e) {
+                System.out.println(e.getMessage() + "\n" + e.getCause());
+            }
         }
     }
 
@@ -61,7 +58,12 @@ public class ClientHandler implements Runnable {
             out.writeObject(dto);
             out.flush();
         } catch (IOException e) {
+            server.disconnect((InetSocketAddress) socket.getRemoteSocketAddress());
             System.out.println(e.getMessage() + "\n" + e.getCause());
         }
+    }
+
+    public InetSocketAddress getInetSocketAddress() {
+        return (InetSocketAddress) socket.getRemoteSocketAddress();
     }
 }

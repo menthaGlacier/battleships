@@ -1,19 +1,37 @@
 package ru.metapunk.battleships.net;
 
-public class Lobby {
+import java.io.Serializable;
+
+public class Lobby implements Serializable {
     private final String lobbyId;
-    private ClientHandler playerOne;
-    private ClientHandler playerTwo;
+    private transient ClientHandler playerOne;
+    private transient ClientHandler playerTwo;
+    private String playerOneNickname;
+    private String playerTwoNickname;
 
     public Lobby(String lobbyId) {
         this.lobbyId = lobbyId;
     }
 
-    public void setPlayerOne(ClientHandler playerOne) {
-        this.playerOne = playerOne;
+    public String getLobbyId() {
+        return lobbyId;
     }
 
-    public void setPlayerTwo(ClientHandler playerTwo) {
+    public void setPlayerOne(ClientHandler playerOne, String nickname) {
+        this.playerOne = playerOne;
+        this.playerOneNickname = nickname;
+    }
+
+    public void setPlayerTwo(ClientHandler playerTwo, String nickname) {
         this.playerTwo = playerTwo;
+        this.playerTwoNickname = nickname;
+    }
+
+    public String getPlayerOneNickname() {
+        return playerOneNickname;
+    }
+
+    public String getPlayerTwoNickname() {
+        return playerTwoNickname;
     }
 }

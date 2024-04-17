@@ -1,4 +1,4 @@
-package ru.metapunk.battleships.net.dto;
+package ru.metapunk.battleships.net.dto.response;
 
 import ru.metapunk.battleships.net.Lobby;
 
