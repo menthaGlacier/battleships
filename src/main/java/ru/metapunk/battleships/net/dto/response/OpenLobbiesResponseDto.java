@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.List;
 
 public class OpenLobbiesResponseDto implements Serializable {
-    private List<Lobby> lobbies;
+    private final List<Lobby> lobbies;
 
     public OpenLobbiesResponseDto(List<Lobby> lobbies) {
         this.lobbies = lobbies;
@@ -14,9 +14,5 @@ public class OpenLobbiesResponseDto implements Serializable {
 
     public List<Lobby> getLobbies() {
         return lobbies;
-    }
-
-    public void setLobbies(List<Lobby> lobbies) {
-        this.lobbies = lobbies;
     }
 }

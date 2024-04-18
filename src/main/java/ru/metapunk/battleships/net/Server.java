@@ -1,6 +1,7 @@
 package ru.metapunk.battleships.net;
 
 import ru.metapunk.battleships.net.dto.response.CreateLobbyResponseDto;
+import ru.metapunk.battleships.net.dto.response.JoinLobbyResponseDto;
 import ru.metapunk.battleships.net.dto.response.OpenLobbiesResponseDto;
 
 import java.io.IOException;
@@ -59,5 +60,15 @@ public class Server {
     public void handleOpenLobbiesRequest(ClientHandler client) {
         List<Lobby> lobbyList = new ArrayList<>(lobbies.values());
         client.sendDto(new OpenLobbiesResponseDto(lobbyList));
+    }
+
+    public void handleJoinLobbyRequest(ClientHandler client, String lobbyId, String nickname) {
+        Lobby lobby = lobbies.get(lobbyId);
+        if (lobby.isOpen()) {
+            lobby.setPlayerTwo(client, nickname);
+            lobby.setIsOpen(false);
+        }
+
+        client.sendDto(new JoinLobbyResponseDto(false));
     }
 }

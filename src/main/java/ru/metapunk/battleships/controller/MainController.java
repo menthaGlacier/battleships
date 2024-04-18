@@ -14,6 +14,7 @@ import ru.metapunk.battleships.net.observer.IClientObserver;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class MainController implements IClientObserver {
     @FXML
@@ -26,6 +27,7 @@ public class MainController implements IClientObserver {
     public MainController() {
         this.client = new Client();
         this.client.setEventsObserver(this);
+        new Thread(client).start();
     }
 
     @FXML
@@ -34,7 +36,7 @@ public class MainController implements IClientObserver {
         FXMLLoader loader = new FXMLLoader((getClass()
                 .getResource("/ru/metapunk/battleships/fxml/join-game-view.fxml")));
         loader.setControllerFactory(controllerClass->
-                new JoinGameController(dialog, client));
+                new JoinGameController(dialog, client, getNickname()));
 
         try {
             dialog.setScene(new Scene(loader.load()));
@@ -53,18 +55,23 @@ public class MainController implements IClientObserver {
 
     @FXML
     private void onHostGameButtonClick() {
-        String nickname = nicknameTextField.getText();
-        if (Objects.equals(nickname, "")) {
-            nickname = "player"; // TODO Append random number for unique names
-        }
-
-        client.sendDto(new CreateLobbyRequestDto(nickname));
+        client.sendDto(new CreateLobbyRequestDto(getNickname()));
     }
 
     @FXML
     private void onExitButtonClick() {
         Platform.exit();
         System.exit(0);
+    }
+
+    private String getNickname() {
+        String nickname = nicknameTextField.getText();
+        if (Objects.equals(nickname, "")) {
+            nickname = "Player_" + ThreadLocalRandom.current()
+                    .nextInt(1000, 9999 + 1);
+        }
+
+        return nickname;
     }
 
     @Override

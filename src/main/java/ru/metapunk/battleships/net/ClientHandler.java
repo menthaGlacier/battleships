@@ -1,6 +1,7 @@
 package ru.metapunk.battleships.net;
 
 import ru.metapunk.battleships.net.dto.request.CreateLobbyRequestDto;
+import ru.metapunk.battleships.net.dto.request.JoinLobbyRequestDto;
 import ru.metapunk.battleships.net.dto.request.OpenLobbiesRequestDto;
 
 import java.io.IOException;
@@ -31,14 +32,15 @@ public class ClientHandler implements Runnable {
     public void run() {
         try {
             Object dto;
-            while ((dto = in.readObject()) != null) {
+            while (true) {
+                dto = in.readObject();
                 if (dto instanceof CreateLobbyRequestDto) {
                     String nickname = ((CreateLobbyRequestDto) dto).getNickname();
                     server.handleCreateLobbyRequest(this, nickname);
-                }
-
-                if (dto instanceof OpenLobbiesRequestDto) {
+                } else if (dto instanceof OpenLobbiesRequestDto) {
                     server.handleOpenLobbiesRequest(this);
+                } else if (dto instanceof JoinLobbyRequestDto) {
+                    //server.handleJoinLobbyRequest(this);
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

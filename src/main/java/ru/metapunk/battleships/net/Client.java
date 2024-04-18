@@ -39,11 +39,12 @@ public class Client implements Runnable {
     private void receiveDto() {
         try {
             Object dto;
-            while ((dto = in.readObject()) != null) {
+            while (true) {
+                dto = in.readObject();
                 if (dto instanceof CreateLobbyResponseDto) {
                     ((IClientObserver) eventsObserver).onLobbyCreated();
                 } else if (dto instanceof OpenLobbiesResponseDto) {
-                    ((IClientJoinGameObserver)eventsObserver)
+                    ((IClientJoinGameObserver) eventsObserver)
                             .onLobbiesReceived((OpenLobbiesResponseDto) dto);
                 }
             }
@@ -63,6 +64,5 @@ public class Client implements Runnable {
 
     public void setEventsObserver(IClientEventsObserver eventsObserver) {
         this.eventsObserver = eventsObserver;
-        new Thread(this).start();
     }
 }

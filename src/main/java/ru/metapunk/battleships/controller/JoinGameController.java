@@ -11,6 +11,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import ru.metapunk.battleships.net.Client;
 import ru.metapunk.battleships.net.Lobby;
+import ru.metapunk.battleships.net.dto.request.JoinLobbyRequestDto;
 import ru.metapunk.battleships.net.dto.request.OpenLobbiesRequestDto;
 import ru.metapunk.battleships.net.dto.response.OpenLobbiesResponseDto;
 import ru.metapunk.battleships.net.observer.IClientJoinGameObserver;
@@ -23,16 +24,16 @@ public class JoinGameController implements IClientJoinGameObserver {
 
     private final Stage stage;
     private final Client client;
+    private final String nickname;
 
-    public JoinGameController(Stage stage, Client client) {
+    public JoinGameController(Stage stage, Client client, String nickname) {
         this.stage = stage;
         this.client = client;
+        this.nickname = nickname;
 
         this.client.setEventsObserver(this);
 
-        Platform.runLater(() -> {
-            client.sendDto(new OpenLobbiesRequestDto());
-        });
+        Platform.runLater(() -> client.sendDto(new OpenLobbiesRequestDto()));
     }
 
     private void updateLobbyList(List<Lobby> lobbies) {
@@ -63,7 +64,7 @@ public class JoinGameController implements IClientJoinGameObserver {
     }
 
     private void onJoinButtonClick(String lobbyId) {
-        System.out.println(lobbyId);
+        client.sendDto(new JoinLobbyRequestDto(lobbyId, nickname));
     }
 
     @FXML
@@ -78,8 +79,6 @@ public class JoinGameController implements IClientJoinGameObserver {
 
     @Override
     public void onLobbiesReceived(OpenLobbiesResponseDto lobbyListDto) {
-        Platform.runLater(() -> {
-            updateLobbyList(lobbyListDto.getLobbies());
-        });
+        Platform.runLater(() -> updateLobbyList(lobbyListDto.getLobbies()));
     }
 }
