@@ -45,7 +45,7 @@ public class Client implements Runnable {
                 if (dto instanceof CreateLobbyResponseDto) {
                     ((IClientObserver) eventsObserver).onLobbyCreated();
                 } else if (dto instanceof OpenLobbiesResponseDto) {
-                    ((zz1IClientJoinGameObserver) eventsObserver)
+                    ((IClientJoinGameObserver) eventsObserver)
                             .onLobbiesReceived((OpenLobbiesResponseDto) dto);
                 } else if (dto instanceof JoinLobbyResponseDto) {
                     ((IClientJoinGameObserver) eventsObserver)
