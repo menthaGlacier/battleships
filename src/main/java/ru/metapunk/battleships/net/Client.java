@@ -1,5 +1,6 @@
 package ru.metapunk.battleships.net;
 
+import ru.metapunk.battleships.net.dto.response.JoinLobbyResponseDto;
 import ru.metapunk.battleships.net.dto.response.OpenLobbiesResponseDto;
 import ru.metapunk.battleships.net.dto.response.CreateLobbyResponseDto;
 import ru.metapunk.battleships.net.observer.IClientEventsObserver;
@@ -44,8 +45,11 @@ public class Client implements Runnable {
                 if (dto instanceof CreateLobbyResponseDto) {
                     ((IClientObserver) eventsObserver).onLobbyCreated();
                 } else if (dto instanceof OpenLobbiesResponseDto) {
-                    ((IClientJoinGameObserver) eventsObserver)
+                    ((zz1IClientJoinGameObserver) eventsObserver)
                             .onLobbiesReceived((OpenLobbiesResponseDto) dto);
+                } else if (dto instanceof JoinLobbyResponseDto) {
+                    ((IClientJoinGameObserver) eventsObserver)
+                            .onJoinLobbyResponse((JoinLobbyResponseDto) dto);
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

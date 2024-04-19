@@ -1,6 +1,8 @@
 package ru.metapunk.battleships.controller;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -8,6 +10,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import ru.metapunk.battleships.model.board.Board;
+import ru.metapunk.battleships.model.tile.cell.Cell;
 import ru.metapunk.battleships.net.Client;
 import ru.metapunk.battleships.net.dto.request.CreateLobbyRequestDto;
 import ru.metapunk.battleships.net.observer.IClientObserver;
@@ -32,11 +36,12 @@ public class MainController implements IClientObserver {
 
     @FXML
     private void onJoinGameButtonClick() {
+        final BooleanProperty gameJoinedProperty = new SimpleBooleanProperty(false);
         final Stage dialog = new Stage();
         FXMLLoader loader = new FXMLLoader((getClass()
                 .getResource("/ru/metapunk/battleships/fxml/join-game-view.fxml")));
         loader.setControllerFactory(controllerClass->
-                new JoinGameController(dialog, client, getNickname()));
+                new JoinGameController(dialog, client, getNickname(), gameJoinedProperty));
 
         try {
             dialog.setScene(new Scene(loader.load()));
@@ -51,6 +56,9 @@ public class MainController implements IClientObserver {
         dialog.showAndWait();
 
         client.setEventsObserver(this);
+        if (gameJoinedProperty.get()) {
+            setShipPlacementScene();
+        }
     }
 
     @FXML
@@ -72,6 +80,29 @@ public class MainController implements IClientObserver {
         }
 
         return nickname;
+    }
+
+    private void setShipPlacementScene() {
+        //final Stage stage = (Stage) root.getScene().getWindow();
+        final Cell[][] cells = new Cell[Board.DEFAULT_ROWS][Board.DEFAULT_COLUMNS];
+        //final BooleanProperty gameAbandonedProperty = new SimpleBooleanProperty(false);
+        final Stage dialog = new Stage();
+        FXMLLoader loader = new FXMLLoader((getClass()
+                .getResource("/ru/metapunk/battleships/fxml/placement-view.fxml")));
+        loader.setControllerFactory(controllerClass->
+                new PlacementController(dialog, cells));
+
+        try {
+            dialog.setScene(new Scene(loader.load()));
+        } catch (IOException e) {
+            System.out.println(e.getMessage() + "\n" + e.getCause());
+        }
+
+        dialog.setTitle("Place your ships");
+        dialog.setResizable(false);
+        dialog.initModality(Modality.WINDOW_MODAL);
+        dialog.initOwner(root.getScene().getWindow());
+        dialog.showAndWait();
     }
 
     @Override

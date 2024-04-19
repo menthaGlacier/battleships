@@ -1,6 +1,7 @@
 package ru.metapunk.battleships.controller;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -13,6 +14,7 @@ import ru.metapunk.battleships.net.Client;
 import ru.metapunk.battleships.net.Lobby;
 import ru.metapunk.battleships.net.dto.request.JoinLobbyRequestDto;
 import ru.metapunk.battleships.net.dto.request.OpenLobbiesRequestDto;
+import ru.metapunk.battleships.net.dto.response.JoinLobbyResponseDto;
 import ru.metapunk.battleships.net.dto.response.OpenLobbiesResponseDto;
 import ru.metapunk.battleships.net.observer.IClientJoinGameObserver;
 
@@ -25,15 +27,17 @@ public class JoinGameController implements IClientJoinGameObserver {
     private final Stage stage;
     private final Client client;
     private final String nickname;
+    private final BooleanProperty gameJoinedProperty;
 
-    public JoinGameController(Stage stage, Client client, String nickname) {
+    public JoinGameController(Stage stage, Client client, String nickname,
+                              BooleanProperty gameJoinedProperty) {
         this.stage = stage;
         this.client = client;
         this.nickname = nickname;
+        this.gameJoinedProperty = gameJoinedProperty;
 
         this.client.setEventsObserver(this);
-
-        Platform.runLater(() -> client.sendDto(new OpenLobbiesRequestDto()));
+        client.sendDto(new OpenLobbiesRequestDto());
     }
 
     private void updateLobbyList(List<Lobby> lobbies) {
@@ -73,12 +77,29 @@ public class JoinGameController implements IClientJoinGameObserver {
     }
 
     @FXML
+    private void onRefreshButtonClick() {
+        client.sendDto(new OpenLobbiesRequestDto());
+    }
+
+    @FXML
     private void initialize() {
         lobbyListView.setFixedCellSize(45);
     }
 
     @Override
-    public void onLobbiesReceived(OpenLobbiesResponseDto lobbyListDto) {
-        Platform.runLater(() -> updateLobbyList(lobbyListDto.getLobbies()));
+    public void onLobbiesReceived(OpenLobbiesResponseDto openLobbiesResponseDto) {
+        Platform.runLater(() -> updateLobbyList(openLobbiesResponseDto.getLobbies()));
+    }
+
+    @Override
+    public void onJoinLobbyResponse(JoinLobbyResponseDto joinLobbyResponseDto) {
+        if (joinLobbyResponseDto.getIsAllowed()) {
+            gameJoinedProperty.set(true);
+            Platform.runLater(() -> stage.close());
+            return;
+        }
+
+        gameJoinedProperty.set(false);
+        client.sendDto(new OpenLobbiesRequestDto());
     }
 }

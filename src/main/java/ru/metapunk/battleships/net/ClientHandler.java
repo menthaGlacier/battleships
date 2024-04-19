@@ -40,7 +40,10 @@ public class ClientHandler implements Runnable {
                 } else if (dto instanceof OpenLobbiesRequestDto) {
                     server.handleOpenLobbiesRequest(this);
                 } else if (dto instanceof JoinLobbyRequestDto) {
-                    //server.handleJoinLobbyRequest(this);
+                    server.handleJoinLobbyRequest(this,
+                            ((JoinLobbyRequestDto) dto).getLobbyId(),
+                            ((JoinLobbyRequestDto) dto).getNickname()
+                    );
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

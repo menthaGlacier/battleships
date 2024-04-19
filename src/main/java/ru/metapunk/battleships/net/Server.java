@@ -67,6 +67,8 @@ public class Server {
         if (lobby.isOpen()) {
             lobby.setPlayerTwo(client, nickname);
             lobby.setIsOpen(false);
+            client.sendDto(new JoinLobbyResponseDto(true));
+            return;
         }
 
         client.sendDto(new JoinLobbyResponseDto(false));
