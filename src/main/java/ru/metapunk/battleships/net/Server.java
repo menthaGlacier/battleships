@@ -74,8 +74,6 @@ public class Server {
             return;
         }
 
-        lobby.setPlayerTwo(client, playerId, nickname);
-        lobby.setIsOpen(false);
         client.sendDto(new JoinLobbyResponseDto(lobbyId, true));
         lobby.getPlayerOne().sendDto(new OtherPlayerJoinedSignalDto());
 

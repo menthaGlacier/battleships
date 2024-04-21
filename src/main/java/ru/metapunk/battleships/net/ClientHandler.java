@@ -38,15 +38,15 @@ public class ClientHandler implements Runnable {
                 // perhaps just by passing dto to handle methods
                 if (dto instanceof CreateLobbyRequestDto) {
                     server.handleCreateLobbyRequest(this,
-                            ((CreateLobbyRequestDto) dto).getPlayerId(),
-                            ((CreateLobbyRequestDto) dto).getNickname());
+                            ((CreateLobbyRequestDto) dto).playerId(),
+                            ((CreateLobbyRequestDto) dto).nickname());
                 } else if (dto instanceof OpenLobbiesRequestDto) {
                     server.handleOpenLobbiesRequest(this);
                 } else if (dto instanceof JoinLobbyRequestDto) {
                     server.handleJoinLobbyRequest(this,
-                            ((JoinLobbyRequestDto) dto).getLobbyId(),
-                            ((JoinLobbyRequestDto) dto).getPlayerId(),
-                            ((JoinLobbyRequestDto) dto).getNickname());
+                            ((JoinLobbyRequestDto) dto).lobbyId(),
+                            ((JoinLobbyRequestDto) dto).playerId(),
+                            ((JoinLobbyRequestDto) dto).nickname());
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

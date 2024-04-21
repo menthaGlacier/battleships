@@ -138,7 +138,7 @@ public class MainController implements IClientObserver {
 
         client.setEventsObserver(this);
         if (otherPlayerJoinedProperty.get()) {
-            prepareForGame(createLobbyResponseDto.getLobbyId());
+            prepareForGame(createLobbyResponseDto.lobbyId());
         }
     }
 }

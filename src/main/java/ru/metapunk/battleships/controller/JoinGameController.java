@@ -28,14 +28,14 @@ public class JoinGameController implements IClientJoinGameObserver {
     private final Stage stage;
     private final Client client;
     private final String nickname;
-    private StringProperty joinedLobbyId;
+    private final StringProperty joinedGameId;
 
     public JoinGameController(Stage stage, Client client, String nickname,
-                              StringProperty joinedLobbyId) {
+                              StringProperty joinedGameId) {
         this.stage = stage;
         this.client = client;
         this.nickname = nickname;
-        this.joinedLobbyId = joinedLobbyId;
+        this.joinedGameId = joinedGameId;
 
         this.client.setEventsObserver(this);
         client.sendDto(new OpenLobbiesRequestDto());
@@ -69,7 +69,7 @@ public class JoinGameController implements IClientJoinGameObserver {
     }
 
     private void onJoinButtonClick(String lobbyId) {
-        client.sendDto(new JoinLobbyRequestDto(lobbyId, nickname));
+        client.sendDto(new JoinLobbyRequestDto(lobbyId, client.getClientId(), nickname));
     }
 
     @FXML
@@ -89,18 +89,18 @@ public class JoinGameController implements IClientJoinGameObserver {
 
     @Override
     public void onLobbiesReceived(OpenLobbiesResponseDto openLobbiesResponseDto) {
-        Platform.runLater(() -> updateLobbyList(openLobbiesResponseDto.getLobbies()));
+        Platform.runLater(() -> updateLobbyList(openLobbiesResponseDto.lobbies()));
     }
 
     @Override
     public void onJoinLobbyResponse(JoinLobbyResponseDto joinLobbyResponseDto) {
-        if (joinLobbyResponseDto.getIsAllowed()) {
-            joinedLobbyId.set(joinLobbyResponseDto.getLobbyId());
+        if (joinLobbyResponseDto.isAllowed()) {
+            joinedGameId.set(joinLobbyResponseDto.gameId());
             Platform.runLater(stage::close);
             return;
         }
 
-        joinedLobbyId.set("None");
+        joinedGameId.set("None");
         client.sendDto(new OpenLobbiesRequestDto());
     }
 }
