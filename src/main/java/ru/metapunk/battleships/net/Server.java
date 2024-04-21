@@ -3,6 +3,7 @@ package ru.metapunk.battleships.net;
 import ru.metapunk.battleships.net.dto.response.CreateLobbyResponseDto;
 import ru.metapunk.battleships.net.dto.response.JoinLobbyResponseDto;
 import ru.metapunk.battleships.net.dto.response.OpenLobbiesResponseDto;
+import ru.metapunk.battleships.net.dto.signal.OtherPlayerJoinedSignalDto;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -14,6 +15,7 @@ public class Server {
     public final static int DEFAULT_PORT = 25821;
     private final List<ClientHandler> clients;
     private final Map<String, Lobby> lobbies;
+    private final Map<String, Game> games;
 
     private final int port;
 
@@ -25,6 +27,7 @@ public class Server {
         this.port = port;
         this.clients = new ArrayList<>();
         this.lobbies = new HashMap<>();
+        this.games = new HashMap<>();
     }
 
     public void serve() {
@@ -49,12 +52,13 @@ public class Server {
         }
     }
 
-    public void handleCreateLobbyRequest(ClientHandler client, String nickname) {
+    public void handleCreateLobbyRequest(ClientHandler client, String playerId,
+                                         String nickname) {
         String lobbyId = UUID.randomUUID().toString();
         Lobby lobby = new Lobby(lobbyId);
-        lobby.setPlayerOne(client, nickname);
+        lobby.setPlayerOne(client, playerId, nickname);
         lobbies.put(lobbyId, lobby);
-        client.sendDto(new CreateLobbyResponseDto());
+        client.sendDto(new CreateLobbyResponseDto(lobbyId));
     }
 
     public void handleOpenLobbiesRequest(ClientHandler client) {
@@ -62,15 +66,18 @@ public class Server {
         client.sendDto(new OpenLobbiesResponseDto(lobbyList));
     }
 
-    public void handleJoinLobbyRequest(ClientHandler client, String lobbyId, String nickname) {
+    public void handleJoinLobbyRequest(ClientHandler client, String lobbyId,
+                                       String playerId, String nickname) {
         Lobby lobby = lobbies.get(lobbyId);
-        if (lobby.isOpen()) {
-            lobby.setPlayerTwo(client, nickname);
-            lobby.setIsOpen(false);
-            client.sendDto(new JoinLobbyResponseDto(true));
+        if (lobby == null) {
+            client.sendDto(new JoinLobbyResponseDto(lobbyId, false));
             return;
         }
 
-        client.sendDto(new JoinLobbyResponseDto(false));
+        lobby.setPlayerTwo(client, playerId, nickname);
+        lobby.setIsOpen(false);
+        client.sendDto(new JoinLobbyResponseDto(lobbyId, true));
+        lobby.getPlayerOne().sendDto(new OtherPlayerJoinedSignalDto());
+
     }
 }

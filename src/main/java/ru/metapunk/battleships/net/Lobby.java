@@ -7,12 +7,16 @@ public class Lobby implements Serializable {
     private boolean isOpen;
     private transient ClientHandler playerOne;
     private transient ClientHandler playerTwo;
+    private String playerOneId;
+    private String playerTwoId;
     private String playerOneNickname;
     private String playerTwoNickname;
 
     public Lobby(String lobbyId) {
         this.lobbyId = lobbyId;
         this.isOpen = true;
+        this.playerOne = null;
+        this.playerTwo = null;
     }
 
     public String getLobbyId() {
@@ -27,13 +31,23 @@ public class Lobby implements Serializable {
         this.isOpen = isOpen;
     }
 
-    public void setPlayerOne(ClientHandler playerOne, String nickname) {
-        this.playerOne = playerOne;
+    public ClientHandler getPlayerOne() {
+        return playerOne;
+    }
+
+    public void setPlayerOne(ClientHandler player, String id, String nickname) {
+        this.playerOne = player;
+        this.playerOneId = id;
         this.playerOneNickname = nickname;
     }
 
-    public void setPlayerTwo(ClientHandler playerTwo, String nickname) {
-        this.playerTwo = playerTwo;
+    public ClientHandler getPlayerTwo() {
+        return playerTwo;
+    }
+
+    public void setPlayerTwo(ClientHandler player, String id, String nickname) {
+        this.playerTwo = player;
+        this.playerTwoId = id;
         this.playerTwoNickname = nickname;
     }
 

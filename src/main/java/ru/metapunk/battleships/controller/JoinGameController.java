@@ -1,7 +1,8 @@
 package ru.metapunk.battleships.controller;
 
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
+
+import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -16,7 +17,7 @@ import ru.metapunk.battleships.net.dto.request.JoinLobbyRequestDto;
 import ru.metapunk.battleships.net.dto.request.OpenLobbiesRequestDto;
 import ru.metapunk.battleships.net.dto.response.JoinLobbyResponseDto;
 import ru.metapunk.battleships.net.dto.response.OpenLobbiesResponseDto;
-import ru.metapunk.battleships.net.observer.IClientJoinGameObserver;
+import ru.metapunk.battleships.observer.IClientJoinGameObserver;
 
 import java.util.List;
 
@@ -27,14 +28,14 @@ public class JoinGameController implements IClientJoinGameObserver {
     private final Stage stage;
     private final Client client;
     private final String nickname;
-    private final BooleanProperty gameJoinedProperty;
+    private StringProperty joinedLobbyId;
 
     public JoinGameController(Stage stage, Client client, String nickname,
-                              BooleanProperty gameJoinedProperty) {
+                              StringProperty joinedLobbyId) {
         this.stage = stage;
         this.client = client;
         this.nickname = nickname;
-        this.gameJoinedProperty = gameJoinedProperty;
+        this.joinedLobbyId = joinedLobbyId;
 
         this.client.setEventsObserver(this);
         client.sendDto(new OpenLobbiesRequestDto());
@@ -73,7 +74,7 @@ public class JoinGameController implements IClientJoinGameObserver {
 
     @FXML
     private void onBackButtonClick() {
-        stage.close();
+        Platform.runLater(stage::close);
     }
 
     @FXML
@@ -94,12 +95,12 @@ public class JoinGameController implements IClientJoinGameObserver {
     @Override
     public void onJoinLobbyResponse(JoinLobbyResponseDto joinLobbyResponseDto) {
         if (joinLobbyResponseDto.getIsAllowed()) {
-            gameJoinedProperty.set(true);
-            Platform.runLater(() -> stage.close());
+            joinedLobbyId.set(joinLobbyResponseDto.getLobbyId());
+            Platform.runLater(stage::close);
             return;
         }
 
-        gameJoinedProperty.set(false);
+        joinedLobbyId.set("None");
         client.sendDto(new OpenLobbiesRequestDto());
     }
 }

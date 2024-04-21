@@ -3,25 +3,30 @@ package ru.metapunk.battleships.net;
 import ru.metapunk.battleships.net.dto.response.JoinLobbyResponseDto;
 import ru.metapunk.battleships.net.dto.response.OpenLobbiesResponseDto;
 import ru.metapunk.battleships.net.dto.response.CreateLobbyResponseDto;
-import ru.metapunk.battleships.net.observer.IClientEventsObserver;
-import ru.metapunk.battleships.net.observer.IClientJoinGameObserver;
-import ru.metapunk.battleships.net.observer.IClientObserver;
+import ru.metapunk.battleships.net.dto.signal.OtherPlayerJoinedSignalDto;
+import ru.metapunk.battleships.observer.IClientEventsObserver;
+import ru.metapunk.battleships.observer.IClientJoinGameObserver;
+import ru.metapunk.battleships.observer.IClientLobbyAwaitingObserver;
+import ru.metapunk.battleships.observer.IClientObserver;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.UUID;
 
 public class Client implements Runnable {
     private static final String SERVER_DEFAULT_ADDRESS = "localhost";
     private static final int SERVER_DEFAULT_PORT = 25821;
 
+    private final String clientId;
     private Socket socket;
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private IClientEventsObserver eventsObserver;
 
     public Client() {
+        this.clientId = UUID.randomUUID().toString();
         try {
             socket = new Socket(SERVER_DEFAULT_ADDRESS, SERVER_DEFAULT_PORT);
             out = new ObjectOutputStream(socket.getOutputStream());
@@ -43,13 +48,17 @@ public class Client implements Runnable {
             while (true) {
                 dto = in.readObject();
                 if (dto instanceof CreateLobbyResponseDto) {
-                    ((IClientObserver) eventsObserver).onLobbyCreated();
+                    ((IClientObserver) eventsObserver)
+                            .onLobbyCreated((CreateLobbyResponseDto) dto);
                 } else if (dto instanceof OpenLobbiesResponseDto) {
                     ((IClientJoinGameObserver) eventsObserver)
                             .onLobbiesReceived((OpenLobbiesResponseDto) dto);
                 } else if (dto instanceof JoinLobbyResponseDto) {
                     ((IClientJoinGameObserver) eventsObserver)
                             .onJoinLobbyResponse((JoinLobbyResponseDto) dto);
+                } else if (dto instanceof OtherPlayerJoinedSignalDto) {
+                    ((IClientLobbyAwaitingObserver) eventsObserver)
+                            .onOtherPlayerJoined();
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -64,6 +73,10 @@ public class Client implements Runnable {
         } catch (IOException e) {
             System.out.println(e.getMessage() + "\n" + e.getCause());
         }
+    }
+
+    public String getClientId() {
+        return clientId;
     }
 
     public void setEventsObserver(IClientEventsObserver eventsObserver) {
