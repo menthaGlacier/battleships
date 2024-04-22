@@ -50,7 +50,10 @@ public class ClientHandler implements Runnable {
                 } else if (dto instanceof OpenLobbiesRequestDto) {
                     server.handleOpenLobbiesRequest(this);
                 } else if (dto instanceof PlayerBoardSetupDto) {
-                    server.handlePlayerBoardSetup();
+                    server.handlePlayerBoardSetup(
+                            ((PlayerBoardSetupDto) dto).gameId(),
+                            ((PlayerBoardSetupDto) dto).playerId(),
+                            ((PlayerBoardSetupDto) dto).cells());
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
