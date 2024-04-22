@@ -11,7 +11,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import ru.metapunk.battleships.net.Client;
+import ru.metapunk.battleships.net.client.Client;
 import ru.metapunk.battleships.net.Lobby;
 import ru.metapunk.battleships.net.dto.request.JoinLobbyRequestDto;
 import ru.metapunk.battleships.net.dto.request.OpenLobbiesRequestDto;
@@ -53,7 +53,7 @@ public class JoinGameController implements IClientJoinGameObserver {
         }
 
         for (Lobby lobby : lobbies) {
-            Label lobbyLabel = new Label(lobby.getPlayerOneNickname());
+            Label lobbyLabel = new Label(lobby.getHost().getNickname());
             lobbyLabel.setFont(new Font(26));
 
             Button joinButton = new Button("Join");

@@ -1,4 +1,4 @@
-package ru.metapunk.battleships.net;
+package ru.metapunk.battleships.net.client;
 
 import ru.metapunk.battleships.net.dto.response.JoinLobbyResponseDto;
 import ru.metapunk.battleships.net.dto.response.OpenLobbiesResponseDto;
@@ -57,8 +57,9 @@ public class Client implements Runnable {
                     ((IClientJoinGameObserver) eventsObserver)
                             .onJoinLobbyResponse((JoinLobbyResponseDto) dto);
                 } else if (dto instanceof OtherPlayerJoinedSignalDto) {
+                    // TODO PASS GAME ID!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     ((IClientLobbyAwaitingObserver) eventsObserver)
-                            .onOtherPlayerJoined();
+                            .onOtherPlayerJoined(((OtherPlayerJoinedSignalDto) dto).gameId());
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

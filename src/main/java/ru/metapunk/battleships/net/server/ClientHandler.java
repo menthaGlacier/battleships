@@ -1,5 +1,7 @@
-package ru.metapunk.battleships.net;
+package ru.metapunk.battleships.net.server;
 
+import ru.metapunk.battleships.net.Player;
+import ru.metapunk.battleships.net.dto.PlayerBoardSetupDto;
 import ru.metapunk.battleships.net.dto.request.CreateLobbyRequestDto;
 import ru.metapunk.battleships.net.dto.request.JoinLobbyRequestDto;
 import ru.metapunk.battleships.net.dto.request.OpenLobbiesRequestDto;
@@ -34,19 +36,21 @@ public class ClientHandler implements Runnable {
             Object dto;
             while (true) {
                 dto = in.readObject();
-                // TODO make calls to "handleX" methods consistent
-                // perhaps just by passing dto to handle methods
                 if (dto instanceof CreateLobbyRequestDto) {
-                    server.handleCreateLobbyRequest(this,
+                    Player host = new Player(this,
                             ((CreateLobbyRequestDto) dto).playerId(),
                             ((CreateLobbyRequestDto) dto).nickname());
+                    server.handleCreateLobbyRequest(host);
+                } else if (dto instanceof JoinLobbyRequestDto) {
+                    Player player = new Player(this,
+                            ((JoinLobbyRequestDto) dto).playerId(),
+                            ((JoinLobbyRequestDto) dto).playerNickname());
+                    server.handleJoinLobbyRequest(
+                            ((JoinLobbyRequestDto) dto).lobbyId(), player);
                 } else if (dto instanceof OpenLobbiesRequestDto) {
                     server.handleOpenLobbiesRequest(this);
-                } else if (dto instanceof JoinLobbyRequestDto) {
-                    server.handleJoinLobbyRequest(this,
-                            ((JoinLobbyRequestDto) dto).lobbyId(),
-                            ((JoinLobbyRequestDto) dto).playerId(),
-                            ((JoinLobbyRequestDto) dto).nickname());
+                } else if (dto instanceof PlayerBoardSetupDto) {
+                    server.handlePlayerBoardSetup();
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

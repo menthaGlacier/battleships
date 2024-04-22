@@ -1,22 +1,22 @@
 package ru.metapunk.battleships.controller;
 
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.stage.Stage;
-import ru.metapunk.battleships.net.Client;
+import ru.metapunk.battleships.net.client.Client;
 import ru.metapunk.battleships.observer.IClientLobbyAwaitingObserver;
 
 public class AwaitingPlayerController implements IClientLobbyAwaitingObserver {
     private final Stage stage;
     private final Client client;
-    private final BooleanProperty otherPlayerJoinedProperty;
+    private final StringProperty joinedGameIdProperty;
 
     public AwaitingPlayerController(Stage stage, Client client,
-                                    BooleanProperty otherPlayerJoinedProperty) {
+                                    StringProperty joinedGameIdProperty) {
         this.stage = stage;
         this.client = client;
-        this.otherPlayerJoinedProperty = otherPlayerJoinedProperty;
+        this.joinedGameIdProperty = joinedGameIdProperty;
 
         this.client.setEventsObserver(this);
     }
@@ -24,13 +24,13 @@ public class AwaitingPlayerController implements IClientLobbyAwaitingObserver {
     @FXML
     private void onCancelButtonClick() {
         // TODO Terminate lobby
-        otherPlayerJoinedProperty.set(false);
+        joinedGameIdProperty.set("None");
         Platform.runLater(stage::close);
     }
 
     @Override
-    public void onOtherPlayerJoined() {
-        otherPlayerJoinedProperty.set(true);
+    public void onOtherPlayerJoined(String gameId) {
+        joinedGameIdProperty.set(gameId);
         Platform.runLater(stage::close);
     }
 }

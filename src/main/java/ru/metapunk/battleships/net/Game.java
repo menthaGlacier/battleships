@@ -4,27 +4,27 @@ import ru.metapunk.battleships.model.tile.cell.Cell;
 
 public class Game {
     private final String gameId;
-    private final String playerOneId;
-    private final String playerTwoId;
+    private final Player playerOne;
+    private final Player playerTwo;
     private Cell[][] playerOneBoard;
     private Cell[][] playerTwoBoard;
 
-    public Game(String gameId, String playerOneId, String playerTwoId) {
+    public Game(String gameId, Player playerOne, Player playerTwo) {
         this.gameId = gameId;
-        this.playerOneId = playerOneId;
-        this.playerTwoId = playerTwoId;
+        this.playerOne = playerOne;
+        this.playerTwo = playerTwo;
     }
 
     public String getGameId() {
         return gameId;
     }
 
-    public String getPlayerOneId() {
-        return playerOneId;
+    public Player getPlayerOne() {
+        return playerOne;
     }
 
-    public String getPlayerTwoId() {
-        return playerTwoId;
+    public Player getPlayerTwo() {
+        return playerTwo;
     }
 
     public Cell[][] getPlayerOneBoard() {

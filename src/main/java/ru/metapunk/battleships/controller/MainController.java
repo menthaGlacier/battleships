@@ -1,8 +1,6 @@
 package ru.metapunk.battleships.controller;
 
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
@@ -14,7 +12,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import ru.metapunk.battleships.model.board.Board;
 import ru.metapunk.battleships.model.tile.cell.Cell;
-import ru.metapunk.battleships.net.Client;
+import ru.metapunk.battleships.net.client.Client;
 import ru.metapunk.battleships.net.dto.PlayerBoardSetupDto;
 import ru.metapunk.battleships.net.dto.request.CreateLobbyRequestDto;
 import ru.metapunk.battleships.net.dto.response.CreateLobbyResponseDto;
@@ -40,12 +38,13 @@ public class MainController implements IClientObserver {
 
     @FXML
     private void onJoinGameButtonClick() {
-        StringProperty joinedLobbyId = new SimpleStringProperty();
+        StringProperty joinedGameIdProperty = new SimpleStringProperty("None");
         final Stage dialog = new Stage();
         FXMLLoader loader = new FXMLLoader((getClass()
                 .getResource("/ru/metapunk/battleships/fxml/join-game-view.fxml")));
         loader.setControllerFactory(controllerClass->
-                new JoinGameController(dialog, client, getNickname(), joinedLobbyId));
+                new JoinGameController(dialog, client, getNickname(),
+                        joinedGameIdProperty));
 
         try {
             dialog.setScene(new Scene(loader.load()));
@@ -60,14 +59,14 @@ public class MainController implements IClientObserver {
         dialog.showAndWait();
 
         client.setEventsObserver(this);
-        if (!joinedLobbyId.get().equals("None")) {
-            prepareForGame(joinedLobbyId.get());
+        if (!joinedGameIdProperty.get().equals("None")) {
+            prepareForGame(joinedGameIdProperty.get());
         }
     }
 
     @FXML
     private void onHostGameButtonClick() {
-        client.sendDto(new CreateLobbyRequestDto(client.getClientId(),getNickname()));
+        client.sendDto(new CreateLobbyRequestDto(client.getClientId(), getNickname()));
     }
 
     @FXML
@@ -86,10 +85,10 @@ public class MainController implements IClientObserver {
         return nickname;
     }
 
-    private void prepareForGame(String lobbyId) {
+    private void prepareForGame(String gameId) {
         final Cell[][] cells = new Cell[Board.DEFAULT_ROWS][Board.DEFAULT_COLUMNS];
         callShipPlacementDialog(cells);
-        client.sendDto(new PlayerBoardSetupDto(lobbyId, client.getClientId(), cells));
+        client.sendDto(new PlayerBoardSetupDto(gameId, client.getClientId(), cells));
     }
 
     private void callShipPlacementDialog(Cell[][] cells) {
@@ -114,14 +113,14 @@ public class MainController implements IClientObserver {
 
     @Override
     public void onLobbyCreated(CreateLobbyResponseDto createLobbyResponseDto) {
-        final BooleanProperty otherPlayerJoinedProperty = new SimpleBooleanProperty();
+        final StringProperty joinedGameIdProperty = new SimpleStringProperty("None");
         Platform.runLater(() -> {
             final Stage dialog = new Stage();
             FXMLLoader loader = new FXMLLoader(getClass()
                     .getResource("/ru/metapunk/battleships/fxml/awaiting-player-view.fxml"));
             loader.setControllerFactory(controllerClass ->
                     new AwaitingPlayerController(dialog, client,
-                            otherPlayerJoinedProperty));
+                            joinedGameIdProperty));
 
             try {
                 dialog.setScene(new Scene(loader.load()));
@@ -134,11 +133,11 @@ public class MainController implements IClientObserver {
             dialog.initModality(Modality.WINDOW_MODAL);
             dialog.initOwner(root.getScene().getWindow());
             dialog.showAndWait();
-        });
 
-        client.setEventsObserver(this);
-        if (otherPlayerJoinedProperty.get()) {
-            prepareForGame(createLobbyResponseDto.lobbyId());
-        }
+            client.setEventsObserver(this);
+            if (!joinedGameIdProperty.get().equals("None")) {
+                prepareForGame(joinedGameIdProperty.get());
+            }
+        });
     }
 }
