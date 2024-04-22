@@ -16,13 +16,13 @@ import ru.metapunk.battleships.net.client.Client;
 import ru.metapunk.battleships.net.dto.PlayerBoardSetupDto;
 import ru.metapunk.battleships.net.dto.request.CreateLobbyRequestDto;
 import ru.metapunk.battleships.net.dto.response.CreateLobbyResponseDto;
-import ru.metapunk.battleships.observer.IClientObserver;
+import ru.metapunk.battleships.observer.IClientMainObserver;
 
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class MainController implements IClientObserver {
+public class MainController implements IClientMainObserver {
     @FXML
     private AnchorPane root;
     @FXML
@@ -89,26 +89,72 @@ public class MainController implements IClientObserver {
         final Cell[][] cells = new Cell[Board.DEFAULT_ROWS][Board.DEFAULT_COLUMNS];
         callShipPlacementDialog(cells);
         client.sendDto(new PlayerBoardSetupDto(gameId, client.getClientId(), cells));
+        callAwaitingPlayerReadinessWindow();
+        changeToGameScene(gameId);
     }
 
-    private void callShipPlacementDialog(Cell[][] cells) {
-        final Stage dialog = new Stage();
+    private void changeToGameScene(String gameId) {
+        Stage stage = (Stage) root.getScene().getWindow();
         FXMLLoader loader = new FXMLLoader((getClass()
-                .getResource("/ru/metapunk/battleships/fxml/placement-view.fxml")));
+                .getResource("/ru/metapunk/battleships/fxml/game-view.fxml")));
         loader.setControllerFactory(controllerClass->
-                new PlacementController(dialog, cells));
+                new GameController(client, gameId));
 
         try {
-            dialog.setScene(new Scene(loader.load()));
+            stage.setScene(new Scene(loader.load()));
         } catch (IOException e) {
             System.out.println(e.getMessage() + "\n" + e.getCause());
         }
 
-        dialog.setTitle("Place your ships");
-        dialog.setResizable(false);
-        dialog.initModality(Modality.WINDOW_MODAL);
-        dialog.initOwner(root.getScene().getWindow());
-        dialog.showAndWait();
+        stage.setTitle("GAME!");
+    }
+
+    private void callShipPlacementDialog(Cell[][] cells) {
+        //Platform.runLater(() -> {
+            final Stage dialog = new Stage();
+            FXMLLoader loader = new FXMLLoader((getClass()
+                    .getResource("/ru/metapunk/battleships/fxml/placement-view.fxml")));
+            loader.setControllerFactory(controllerClass->
+                    new PlacementController(dialog, cells));
+
+            try {
+                dialog.setScene(new Scene(loader.load()));
+            } catch (IOException e) {
+                System.out.println(e.getMessage() + "\n" + e.getCause());
+            }
+
+            dialog.setTitle("Place your ships");
+            dialog.setResizable(false);
+            dialog.initModality(Modality.WINDOW_MODAL);
+            dialog.initOwner(root.getScene().getWindow());
+            dialog.showAndWait();
+
+            client.setEventsObserver(this);
+        //});
+    }
+
+    private void callAwaitingPlayerReadinessWindow() {
+        //Platform.runLater(() -> {
+            final Stage dialog = new Stage();
+            FXMLLoader loader = new FXMLLoader((getClass()
+                    .getResource("/ru/metapunk/battleships/fxml/awaiting-player-readiness-view.fxml")));
+            loader.setControllerFactory(controllerClass->
+                    new AwaitingPlayerReadinessController(dialog, client));
+
+            try {
+                dialog.setScene(new Scene(loader.load()));
+            } catch (IOException e) {
+                System.out.println(e.getMessage() + "\n" + e.getCause());
+            }
+
+            dialog.setTitle("Awaiting...");
+            dialog.setResizable(false);
+            dialog.initModality(Modality.WINDOW_MODAL);
+            dialog.initOwner(root.getScene().getWindow());
+            dialog.showAndWait();
+
+            client.setEventsObserver(this);
+        //});
     }
 
     @Override
@@ -117,9 +163,9 @@ public class MainController implements IClientObserver {
         Platform.runLater(() -> {
             final Stage dialog = new Stage();
             FXMLLoader loader = new FXMLLoader(getClass()
-                    .getResource("/ru/metapunk/battleships/fxml/awaiting-player-view.fxml"));
+                    .getResource("/ru/metapunk/battleships/fxml/awaiting-player-joining-view.fxml"));
             loader.setControllerFactory(controllerClass ->
-                    new AwaitingPlayerController(dialog, client,
+                    new AwaitingPlayerJoiningController(dialog, client,
                             joinedGameIdProperty));
 
             try {

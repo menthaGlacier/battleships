@@ -4,10 +4,8 @@ import ru.metapunk.battleships.net.dto.response.JoinLobbyResponseDto;
 import ru.metapunk.battleships.net.dto.response.OpenLobbiesResponseDto;
 import ru.metapunk.battleships.net.dto.response.CreateLobbyResponseDto;
 import ru.metapunk.battleships.net.dto.signal.OtherPlayerJoinedSignalDto;
-import ru.metapunk.battleships.observer.IClientEventsObserver;
-import ru.metapunk.battleships.observer.IClientJoinGameObserver;
-import ru.metapunk.battleships.observer.IClientLobbyAwaitingObserver;
-import ru.metapunk.battleships.observer.IClientObserver;
+import ru.metapunk.battleships.net.dto.signal.OtherPlayerReadySignalDto;
+import ru.metapunk.battleships.observer.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -48,7 +46,7 @@ public class Client implements Runnable {
             while (true) {
                 dto = in.readObject();
                 if (dto instanceof CreateLobbyResponseDto) {
-                    ((IClientObserver) eventsObserver)
+                    ((IClientMainObserver) eventsObserver)
                             .onLobbyCreated((CreateLobbyResponseDto) dto);
                 } else if (dto instanceof OpenLobbiesResponseDto) {
                     ((IClientJoinGameObserver) eventsObserver)
@@ -59,6 +57,9 @@ public class Client implements Runnable {
                 } else if (dto instanceof OtherPlayerJoinedSignalDto) {
                     ((IClientLobbyAwaitingObserver) eventsObserver)
                             .onOtherPlayerJoined(((OtherPlayerJoinedSignalDto) dto).gameId());
+                } else if (dto instanceof OtherPlayerReadySignalDto) {
+                    ((IClientGameAwaitingObserver) eventsObserver)
+                            .onOtherPlayerReady();
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

@@ -1,6 +1,8 @@
 package ru.metapunk.battleships.model.tile.cell;
 
-public enum CellWarSide {
+import java.io.Serializable;
+
+public enum CellWarSide implements Serializable {
     NEUTRAL,
     PLAYER,
     ENEMY
