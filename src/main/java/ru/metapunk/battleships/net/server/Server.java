@@ -8,6 +8,7 @@ import ru.metapunk.battleships.net.dto.response.CreateLobbyResponseDto;
 import ru.metapunk.battleships.net.dto.response.JoinLobbyResponseDto;
 import ru.metapunk.battleships.net.dto.response.OpenLobbiesResponseDto;
 import ru.metapunk.battleships.net.dto.signal.OtherPlayerJoinedSignalDto;
+import ru.metapunk.battleships.net.dto.signal.OtherPlayerReadySignalDto;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -97,10 +98,21 @@ public class Server {
 
     public void handlePlayerBoardSetup(String gameId, String playerId, Cell[][] cells) {
         Game game = games.get(gameId);
+        if (game == null) {
+            return;
+        }
         if (game.getPlayerOne().getId().equals(playerId)) {
             game.setPlayerOneBoard(cells);
+            if (game.getPlayerTwoBoard() != null) {
+                game.getPlayerOne().getClientHandler().sendDto(new OtherPlayerReadySignalDto());
+                game.getPlayerTwo().getClientHandler().sendDto(new OtherPlayerReadySignalDto());
+            }
         } else if (game.getPlayerTwo().getId().equals(playerId)) {
             game.setPlayerTwoBoard(cells);
+            if (game.getPlayerOneBoard() != null) {
+                game.getPlayerOne().getClientHandler().sendDto(new OtherPlayerReadySignalDto());
+                game.getPlayerTwo().getClientHandler().sendDto(new OtherPlayerReadySignalDto());
+            }
         }
     }
 }

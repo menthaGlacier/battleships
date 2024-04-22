@@ -6,8 +6,8 @@ public class Game {
     private final String gameId;
     private final Player playerOne;
     private final Player playerTwo;
-    private Cell[][] playerOneBoard;
-    private Cell[][] playerTwoBoard;
+    private Cell[][] playerOneBoard = null;
+    private Cell[][] playerTwoBoard = null;
 
     public Game(String gameId, Player playerOne, Player playerTwo) {
         this.gameId = gameId;
