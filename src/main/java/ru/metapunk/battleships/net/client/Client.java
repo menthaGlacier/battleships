@@ -57,7 +57,6 @@ public class Client implements Runnable {
                     ((IClientJoinGameObserver) eventsObserver)
                             .onJoinLobbyResponse((JoinLobbyResponseDto) dto);
                 } else if (dto instanceof OtherPlayerJoinedSignalDto) {
-                    // TODO PASS GAME ID!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     ((IClientLobbyAwaitingObserver) eventsObserver)
                             .onOtherPlayerJoined(((OtherPlayerJoinedSignalDto) dto).gameId());
                 }

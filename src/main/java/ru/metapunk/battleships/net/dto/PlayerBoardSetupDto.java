@@ -4,6 +4,8 @@ import ru.metapunk.battleships.model.tile.cell.Cell;
 
 import java.io.Serializable;
 
-public record PlayerBoardSetupDto(String gameId, String playerId, Cell[][] cells)
+public record PlayerBoardSetupDto(String gameId,
+                                  String playerId,
+                                  Cell[][] cells)
         implements Serializable {
 }
