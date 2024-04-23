@@ -7,6 +7,7 @@ module ru.metapunk.battleships {
     exports ru.metapunk.battleships;
     exports ru.metapunk.battleships.net;
     exports ru.metapunk.battleships.observer;
+    exports ru.metapunk.battleships.net.dto.signal;
     exports ru.metapunk.battleships.net.dto.request;
     exports ru.metapunk.battleships.net.dto.response;
     exports ru.metapunk.battleships.controller;

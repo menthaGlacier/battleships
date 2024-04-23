@@ -4,9 +4,11 @@ import ru.metapunk.battleships.model.tile.cell.Cell;
 import ru.metapunk.battleships.net.Game;
 import ru.metapunk.battleships.net.Lobby;
 import ru.metapunk.battleships.net.Player;
+import ru.metapunk.battleships.net.WhoseTurn;
 import ru.metapunk.battleships.net.dto.response.CreateLobbyResponseDto;
 import ru.metapunk.battleships.net.dto.response.JoinLobbyResponseDto;
 import ru.metapunk.battleships.net.dto.response.OpenLobbiesResponseDto;
+import ru.metapunk.battleships.net.dto.response.WhoseTurnResponseDto;
 import ru.metapunk.battleships.net.dto.signal.OtherPlayerJoinedSignalDto;
 import ru.metapunk.battleships.net.dto.signal.OtherPlayerReadySignalDto;
 
@@ -101,18 +103,42 @@ public class Server {
         if (game == null) {
             return;
         }
-        if (game.getPlayerOne().getId().equals(playerId)) {
-            game.setPlayerOneBoard(cells);
-            if (game.getPlayerTwoBoard() != null) {
-                game.getPlayerOne().getClientHandler().sendDto(new OtherPlayerReadySignalDto());
-                game.getPlayerTwo().getClientHandler().sendDto(new OtherPlayerReadySignalDto());
+
+        synchronized (game) {
+            if (game.getPlayerOne().getId().equals(playerId)) {
+                game.setPlayerOneBoard(cells);
+            } else if (game.getPlayerTwo().getId().equals(playerId)) {
+                game.setPlayerTwoBoard(cells);
+            } else {
+                return;
             }
-        } else if (game.getPlayerTwo().getId().equals(playerId)) {
-            game.setPlayerTwoBoard(cells);
-            if (game.getPlayerOneBoard() != null) {
-                game.getPlayerOne().getClientHandler().sendDto(new OtherPlayerReadySignalDto());
-                game.getPlayerTwo().getClientHandler().sendDto(new OtherPlayerReadySignalDto());
+
+            if (game.getPlayerOneBoard() != null && game.getPlayerTwoBoard() != null) {
+                OtherPlayerReadySignalDto dto = new OtherPlayerReadySignalDto();
+                game.getPlayerOne().getClientHandler().sendDto(dto);
+                game.getPlayerTwo().getClientHandler().sendDto(dto);
             }
         }
+    }
+
+    public void handleWhoseTurnRequest(ClientHandler client, String gameId, String playerId) {
+        Game game = games.get(gameId);
+        if (game == null) {
+            return;
+        }
+
+        if (game.getWhoseTurn() == WhoseTurn.PLAYER_ONE
+                && game.getPlayerOne().getId().equals(playerId)) {
+            client.sendDto(new WhoseTurnResponseDto(true));
+            return;
+        }
+
+        if (game.getWhoseTurn() == WhoseTurn.PLAYER_TWO
+                && game.getPlayerTwo().getId().equals(playerId)) {
+            client.sendDto(new WhoseTurnResponseDto(true));
+            return;
+        }
+
+        client.sendDto(new WhoseTurnResponseDto(false));
     }
 }

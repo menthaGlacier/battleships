@@ -42,7 +42,7 @@ public class MainController implements IClientMainObserver {
         final Stage dialog = new Stage();
         FXMLLoader loader = new FXMLLoader((getClass()
                 .getResource("/ru/metapunk/battleships/fxml/join-game-view.fxml")));
-        loader.setControllerFactory(controllerClass->
+        loader.setControllerFactory(controllerClass ->
                 new JoinGameController(dialog, client, getNickname(),
                         joinedGameIdProperty));
 
@@ -90,15 +90,15 @@ public class MainController implements IClientMainObserver {
         callShipPlacementDialog(cells);
         client.sendDto(new PlayerBoardSetupDto(gameId, client.getClientId(), cells));
         callAwaitingPlayerReadinessWindow();
-        changeToGameScene(gameId);
+        changeToGameScene(gameId, cells);
     }
 
-    private void changeToGameScene(String gameId) {
+    private void changeToGameScene(String gameId, Cell[][] cells) {
         Stage stage = (Stage) root.getScene().getWindow();
         FXMLLoader loader = new FXMLLoader((getClass()
                 .getResource("/ru/metapunk/battleships/fxml/game-view.fxml")));
-        loader.setControllerFactory(controllerClass->
-                new GameController(client, gameId));
+        loader.setControllerFactory(controllerClass ->
+                new GameController(client, gameId, cells));
 
         try {
             stage.setScene(new Scene(loader.load()));
@@ -110,51 +110,47 @@ public class MainController implements IClientMainObserver {
     }
 
     private void callShipPlacementDialog(Cell[][] cells) {
-        //Platform.runLater(() -> {
-            final Stage dialog = new Stage();
-            FXMLLoader loader = new FXMLLoader((getClass()
-                    .getResource("/ru/metapunk/battleships/fxml/placement-view.fxml")));
-            loader.setControllerFactory(controllerClass->
-                    new PlacementController(dialog, cells));
+        final Stage dialog = new Stage();
+        FXMLLoader loader = new FXMLLoader((getClass()
+                .getResource("/ru/metapunk/battleships/fxml/placement-view.fxml")));
+        loader.setControllerFactory(controllerClass ->
+                new PlacementController(dialog, cells));
 
-            try {
-                dialog.setScene(new Scene(loader.load()));
-            } catch (IOException e) {
-                System.out.println(e.getMessage() + "\n" + e.getCause());
-            }
+        try {
+            dialog.setScene(new Scene(loader.load()));
+        } catch (IOException e) {
+            System.out.println(e.getMessage() + "\n" + e.getCause());
+        }
 
-            dialog.setTitle("Place your ships");
-            dialog.setResizable(false);
-            dialog.initModality(Modality.WINDOW_MODAL);
-            dialog.initOwner(root.getScene().getWindow());
-            dialog.showAndWait();
+        dialog.setTitle("Place your ships");
+        dialog.setResizable(false);
+        dialog.initModality(Modality.WINDOW_MODAL);
+        dialog.initOwner(root.getScene().getWindow());
+        dialog.showAndWait();
 
-            client.setEventsObserver(this);
-        //});
+        client.setEventsObserver(this);
     }
 
     private void callAwaitingPlayerReadinessWindow() {
-        //Platform.runLater(() -> {
-            final Stage dialog = new Stage();
-            FXMLLoader loader = new FXMLLoader((getClass()
-                    .getResource("/ru/metapunk/battleships/fxml/awaiting-player-readiness-view.fxml")));
-            loader.setControllerFactory(controllerClass->
-                    new AwaitingPlayerReadinessController(dialog, client));
+        final Stage dialog = new Stage();
+        FXMLLoader loader = new FXMLLoader((getClass()
+                .getResource("/ru/metapunk/battleships/fxml/awaiting-player-readiness-view.fxml")));
+        loader.setControllerFactory(controllerClass ->
+                new AwaitingPlayerReadinessController(dialog, client));
 
-            try {
-                dialog.setScene(new Scene(loader.load()));
-            } catch (IOException e) {
-                System.out.println(e.getMessage() + "\n" + e.getCause());
-            }
+        try {
+            dialog.setScene(new Scene(loader.load()));
+        } catch (IOException e) {
+            System.out.println(e.getMessage() + "\n" + e.getCause());
+        }
 
-            dialog.setTitle("Awaiting...");
-            dialog.setResizable(false);
-            dialog.initModality(Modality.WINDOW_MODAL);
-            dialog.initOwner(root.getScene().getWindow());
-            dialog.showAndWait();
+        dialog.setTitle("Awaiting...");
+        dialog.setResizable(false);
+        dialog.initModality(Modality.WINDOW_MODAL);
+        dialog.initOwner(root.getScene().getWindow());
+        dialog.showAndWait();
 
-            client.setEventsObserver(this);
-        //});
+        client.setEventsObserver(this);
     }
 
     @Override

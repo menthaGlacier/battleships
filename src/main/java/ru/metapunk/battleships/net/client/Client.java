@@ -3,6 +3,7 @@ package ru.metapunk.battleships.net.client;
 import ru.metapunk.battleships.net.dto.response.JoinLobbyResponseDto;
 import ru.metapunk.battleships.net.dto.response.OpenLobbiesResponseDto;
 import ru.metapunk.battleships.net.dto.response.CreateLobbyResponseDto;
+import ru.metapunk.battleships.net.dto.response.WhoseTurnResponseDto;
 import ru.metapunk.battleships.net.dto.signal.OtherPlayerJoinedSignalDto;
 import ru.metapunk.battleships.net.dto.signal.OtherPlayerReadySignalDto;
 import ru.metapunk.battleships.observer.*;
@@ -56,10 +57,13 @@ public class Client implements Runnable {
                             .onJoinLobbyResponse((JoinLobbyResponseDto) dto);
                 } else if (dto instanceof OtherPlayerJoinedSignalDto) {
                     ((IClientLobbyAwaitingObserver) eventsObserver)
-                            .onOtherPlayerJoined(((OtherPlayerJoinedSignalDto) dto).gameId());
+                            .onOtherPlayerJoined((OtherPlayerJoinedSignalDto) dto);
                 } else if (dto instanceof OtherPlayerReadySignalDto) {
                     ((IClientGameAwaitingObserver) eventsObserver)
                             .onOtherPlayerReady();
+                } else if (dto instanceof WhoseTurnResponseDto) {
+                    ((IClientGameObserver) eventsObserver)
+                            .onWhoseTurnResponse((WhoseTurnResponseDto) dto);
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

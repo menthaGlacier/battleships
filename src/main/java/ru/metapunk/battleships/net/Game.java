@@ -8,11 +8,13 @@ public class Game {
     private final Player playerTwo;
     private Cell[][] playerOneBoard = null;
     private Cell[][] playerTwoBoard = null;
+    private WhoseTurn whoseTurn;
 
     public Game(String gameId, Player playerOne, Player playerTwo) {
         this.gameId = gameId;
         this.playerOne = playerOne;
         this.playerTwo = playerTwo;
+        this.whoseTurn = WhoseTurn.getRandomPlayerTurn();
     }
 
     public String getGameId() {
@@ -41,5 +43,9 @@ public class Game {
 
     public void setPlayerTwoBoard(Cell[][] playerTwoBoard) {
         this.playerTwoBoard = playerTwoBoard;
+    }
+
+    public WhoseTurn getWhoseTurn() {
+        return whoseTurn;
     }
 }

@@ -5,6 +5,7 @@ import ru.metapunk.battleships.net.dto.PlayerBoardSetupDto;
 import ru.metapunk.battleships.net.dto.request.CreateLobbyRequestDto;
 import ru.metapunk.battleships.net.dto.request.JoinLobbyRequestDto;
 import ru.metapunk.battleships.net.dto.request.OpenLobbiesRequestDto;
+import ru.metapunk.battleships.net.dto.request.WhoseTurnRequestDto;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -54,6 +55,10 @@ public class ClientHandler implements Runnable {
                             ((PlayerBoardSetupDto) dto).gameId(),
                             ((PlayerBoardSetupDto) dto).playerId(),
                             ((PlayerBoardSetupDto) dto).cells());
+                } else if (dto instanceof WhoseTurnRequestDto) {
+                    server.handleWhoseTurnRequest(this,
+                            ((WhoseTurnRequestDto) dto).gameId(),
+                            ((WhoseTurnRequestDto) dto).playerId());
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

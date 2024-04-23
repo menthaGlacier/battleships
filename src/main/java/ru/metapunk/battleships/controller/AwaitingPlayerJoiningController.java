@@ -5,6 +5,7 @@ import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.stage.Stage;
 import ru.metapunk.battleships.net.client.Client;
+import ru.metapunk.battleships.net.dto.signal.OtherPlayerJoinedSignalDto;
 import ru.metapunk.battleships.observer.IClientLobbyAwaitingObserver;
 
 public class AwaitingPlayerJoiningController implements IClientLobbyAwaitingObserver {
@@ -29,8 +30,8 @@ public class AwaitingPlayerJoiningController implements IClientLobbyAwaitingObse
     }
 
     @Override
-    public void onOtherPlayerJoined(String gameId) {
-        joinedGameIdProperty.set(gameId);
+    public void onOtherPlayerJoined(OtherPlayerJoinedSignalDto otherPlayerJoinedSignalDto) {
+        joinedGameIdProperty.set(otherPlayerJoinedSignalDto.gameId());
         Platform.runLater(stage::close);
     }
 }
