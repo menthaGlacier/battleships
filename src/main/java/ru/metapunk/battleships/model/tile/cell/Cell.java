@@ -1,6 +1,8 @@
 package ru.metapunk.battleships.model.tile.cell;
 
-public class Cell {
+import java.io.Serializable;
+
+public class Cell implements Serializable {
     private CellType type;
     private CellWarSide warSide;
     private CellShipPresence shipPresence;

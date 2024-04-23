@@ -1,4 +1,4 @@
-package ru.metapunk.battleships.net.observer;
+package ru.metapunk.battleships.observer;
 
 import ru.metapunk.battleships.net.dto.response.JoinLobbyResponseDto;
 import ru.metapunk.battleships.net.dto.response.OpenLobbiesResponseDto;

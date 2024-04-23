@@ -1,8 +1,8 @@
 package ru.metapunk.battleships.controller;
 
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -12,15 +12,17 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import ru.metapunk.battleships.model.board.Board;
 import ru.metapunk.battleships.model.tile.cell.Cell;
-import ru.metapunk.battleships.net.Client;
+import ru.metapunk.battleships.net.client.Client;
+import ru.metapunk.battleships.net.dto.PlayerBoardSetupDto;
 import ru.metapunk.battleships.net.dto.request.CreateLobbyRequestDto;
-import ru.metapunk.battleships.net.observer.IClientObserver;
+import ru.metapunk.battleships.net.dto.response.CreateLobbyResponseDto;
+import ru.metapunk.battleships.observer.IClientMainObserver;
 
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class MainController implements IClientObserver {
+public class MainController implements IClientMainObserver {
     @FXML
     private AnchorPane root;
     @FXML
@@ -36,12 +38,13 @@ public class MainController implements IClientObserver {
 
     @FXML
     private void onJoinGameButtonClick() {
-        final BooleanProperty gameJoinedProperty = new SimpleBooleanProperty(false);
+        StringProperty joinedGameIdProperty = new SimpleStringProperty("None");
         final Stage dialog = new Stage();
         FXMLLoader loader = new FXMLLoader((getClass()
                 .getResource("/ru/metapunk/battleships/fxml/join-game-view.fxml")));
-        loader.setControllerFactory(controllerClass->
-                new JoinGameController(dialog, client, getNickname(), gameJoinedProperty));
+        loader.setControllerFactory(controllerClass ->
+                new JoinGameController(dialog, client, getNickname(),
+                        joinedGameIdProperty));
 
         try {
             dialog.setScene(new Scene(loader.load()));
@@ -56,14 +59,14 @@ public class MainController implements IClientObserver {
         dialog.showAndWait();
 
         client.setEventsObserver(this);
-        if (gameJoinedProperty.get()) {
-            setShipPlacementScene();
+        if (!joinedGameIdProperty.get().equals("None")) {
+            prepareForGame(joinedGameIdProperty.get());
         }
     }
 
     @FXML
     private void onHostGameButtonClick() {
-        client.sendDto(new CreateLobbyRequestDto(getNickname()));
+        client.sendDto(new CreateLobbyRequestDto(client.getClientId(), getNickname()));
     }
 
     @FXML
@@ -82,14 +85,35 @@ public class MainController implements IClientObserver {
         return nickname;
     }
 
-    private void setShipPlacementScene() {
-        //final Stage stage = (Stage) root.getScene().getWindow();
+    private void prepareForGame(String gameId) {
         final Cell[][] cells = new Cell[Board.DEFAULT_ROWS][Board.DEFAULT_COLUMNS];
-        //final BooleanProperty gameAbandonedProperty = new SimpleBooleanProperty(false);
+        callShipPlacementDialog(cells);
+        client.sendDto(new PlayerBoardSetupDto(gameId, client.getClientId(), cells));
+        callAwaitingPlayerReadinessWindow();
+        changeToGameScene(gameId, cells);
+    }
+
+    private void changeToGameScene(String gameId, Cell[][] cells) {
+        Stage stage = (Stage) root.getScene().getWindow();
+        FXMLLoader loader = new FXMLLoader((getClass()
+                .getResource("/ru/metapunk/battleships/fxml/game-view.fxml")));
+        loader.setControllerFactory(controllerClass ->
+                new GameController(client, gameId, cells));
+
+        try {
+            stage.setScene(new Scene(loader.load()));
+        } catch (IOException e) {
+            System.out.println(e.getMessage() + "\n" + e.getCause());
+        }
+
+        stage.setTitle("GAME!");
+    }
+
+    private void callShipPlacementDialog(Cell[][] cells) {
         final Stage dialog = new Stage();
         FXMLLoader loader = new FXMLLoader((getClass()
                 .getResource("/ru/metapunk/battleships/fxml/placement-view.fxml")));
-        loader.setControllerFactory(controllerClass->
+        loader.setControllerFactory(controllerClass ->
                 new PlacementController(dialog, cells));
 
         try {
@@ -103,16 +127,42 @@ public class MainController implements IClientObserver {
         dialog.initModality(Modality.WINDOW_MODAL);
         dialog.initOwner(root.getScene().getWindow());
         dialog.showAndWait();
+
+        client.setEventsObserver(this);
+    }
+
+    private void callAwaitingPlayerReadinessWindow() {
+        final Stage dialog = new Stage();
+        FXMLLoader loader = new FXMLLoader((getClass()
+                .getResource("/ru/metapunk/battleships/fxml/awaiting-player-readiness-view.fxml")));
+        loader.setControllerFactory(controllerClass ->
+                new AwaitingPlayerReadinessController(dialog, client));
+
+        try {
+            dialog.setScene(new Scene(loader.load()));
+        } catch (IOException e) {
+            System.out.println(e.getMessage() + "\n" + e.getCause());
+        }
+
+        dialog.setTitle("Awaiting...");
+        dialog.setResizable(false);
+        dialog.initModality(Modality.WINDOW_MODAL);
+        dialog.initOwner(root.getScene().getWindow());
+        dialog.showAndWait();
+
+        client.setEventsObserver(this);
     }
 
     @Override
-    public void onLobbyCreated() {
+    public void onLobbyCreated(CreateLobbyResponseDto createLobbyResponseDto) {
+        final StringProperty joinedGameIdProperty = new SimpleStringProperty("None");
         Platform.runLater(() -> {
             final Stage dialog = new Stage();
             FXMLLoader loader = new FXMLLoader(getClass()
-                    .getResource("/ru/metapunk/battleships/fxml/awaiting-player-view.fxml"));
+                    .getResource("/ru/metapunk/battleships/fxml/awaiting-player-joining-view.fxml"));
             loader.setControllerFactory(controllerClass ->
-                    new AwaitingPlayerController(dialog, client));
+                    new AwaitingPlayerJoiningController(dialog, client,
+                            joinedGameIdProperty));
 
             try {
                 dialog.setScene(new Scene(loader.load()));
@@ -127,6 +177,9 @@ public class MainController implements IClientObserver {
             dialog.showAndWait();
 
             client.setEventsObserver(this);
+            if (!joinedGameIdProperty.get().equals("None")) {
+                prepareForGame(joinedGameIdProperty.get());
+            }
         });
     }
 }

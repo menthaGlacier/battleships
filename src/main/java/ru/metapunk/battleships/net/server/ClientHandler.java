@@ -1,8 +1,11 @@
-package ru.metapunk.battleships.net;
+package ru.metapunk.battleships.net.server;
 
+import ru.metapunk.battleships.net.Player;
+import ru.metapunk.battleships.net.dto.PlayerBoardSetupDto;
 import ru.metapunk.battleships.net.dto.request.CreateLobbyRequestDto;
 import ru.metapunk.battleships.net.dto.request.JoinLobbyRequestDto;
 import ru.metapunk.battleships.net.dto.request.OpenLobbiesRequestDto;
+import ru.metapunk.battleships.net.dto.request.WhoseTurnRequestDto;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -35,15 +38,27 @@ public class ClientHandler implements Runnable {
             while (true) {
                 dto = in.readObject();
                 if (dto instanceof CreateLobbyRequestDto) {
-                    String nickname = ((CreateLobbyRequestDto) dto).getNickname();
-                    server.handleCreateLobbyRequest(this, nickname);
+                    Player host = new Player(this,
+                            ((CreateLobbyRequestDto) dto).playerId(),
+                            ((CreateLobbyRequestDto) dto).nickname());
+                    server.handleCreateLobbyRequest(host);
+                } else if (dto instanceof JoinLobbyRequestDto) {
+                    Player player = new Player(this,
+                            ((JoinLobbyRequestDto) dto).playerId(),
+                            ((JoinLobbyRequestDto) dto).playerNickname());
+                    server.handleJoinLobbyRequest(
+                            ((JoinLobbyRequestDto) dto).lobbyId(), player);
                 } else if (dto instanceof OpenLobbiesRequestDto) {
                     server.handleOpenLobbiesRequest(this);
-                } else if (dto instanceof JoinLobbyRequestDto) {
-                    server.handleJoinLobbyRequest(this,
-                            ((JoinLobbyRequestDto) dto).getLobbyId(),
-                            ((JoinLobbyRequestDto) dto).getNickname()
-                    );
+                } else if (dto instanceof PlayerBoardSetupDto) {
+                    server.handlePlayerBoardSetup(
+                            ((PlayerBoardSetupDto) dto).gameId(),
+                            ((PlayerBoardSetupDto) dto).playerId(),
+                            ((PlayerBoardSetupDto) dto).cells());
+                } else if (dto instanceof WhoseTurnRequestDto) {
+                    server.handleWhoseTurnRequest(this,
+                            ((WhoseTurnRequestDto) dto).gameId(),
+                            ((WhoseTurnRequestDto) dto).playerId());
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

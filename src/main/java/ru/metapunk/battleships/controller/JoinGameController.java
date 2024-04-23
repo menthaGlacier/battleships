@@ -1,7 +1,8 @@
 package ru.metapunk.battleships.controller;
 
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
+
+import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -10,13 +11,13 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import ru.metapunk.battleships.net.Client;
+import ru.metapunk.battleships.net.client.Client;
 import ru.metapunk.battleships.net.Lobby;
 import ru.metapunk.battleships.net.dto.request.JoinLobbyRequestDto;
 import ru.metapunk.battleships.net.dto.request.OpenLobbiesRequestDto;
 import ru.metapunk.battleships.net.dto.response.JoinLobbyResponseDto;
 import ru.metapunk.battleships.net.dto.response.OpenLobbiesResponseDto;
-import ru.metapunk.battleships.net.observer.IClientJoinGameObserver;
+import ru.metapunk.battleships.observer.IClientJoinGameObserver;
 
 import java.util.List;
 
@@ -27,14 +28,14 @@ public class JoinGameController implements IClientJoinGameObserver {
     private final Stage stage;
     private final Client client;
     private final String nickname;
-    private final BooleanProperty gameJoinedProperty;
+    private final StringProperty joinedGameId;
 
     public JoinGameController(Stage stage, Client client, String nickname,
-                              BooleanProperty gameJoinedProperty) {
+                              StringProperty joinedGameId) {
         this.stage = stage;
         this.client = client;
         this.nickname = nickname;
-        this.gameJoinedProperty = gameJoinedProperty;
+        this.joinedGameId = joinedGameId;
 
         this.client.setEventsObserver(this);
         client.sendDto(new OpenLobbiesRequestDto());
@@ -52,7 +53,7 @@ public class JoinGameController implements IClientJoinGameObserver {
         }
 
         for (Lobby lobby : lobbies) {
-            Label lobbyLabel = new Label(lobby.getPlayerOneNickname());
+            Label lobbyLabel = new Label(lobby.getHost().getNickname());
             lobbyLabel.setFont(new Font(26));
 
             Button joinButton = new Button("Join");
@@ -68,12 +69,12 @@ public class JoinGameController implements IClientJoinGameObserver {
     }
 
     private void onJoinButtonClick(String lobbyId) {
-        client.sendDto(new JoinLobbyRequestDto(lobbyId, nickname));
+        client.sendDto(new JoinLobbyRequestDto(lobbyId, client.getClientId(), nickname));
     }
 
     @FXML
     private void onBackButtonClick() {
-        stage.close();
+        Platform.runLater(stage::close);
     }
 
     @FXML
@@ -88,18 +89,18 @@ public class JoinGameController implements IClientJoinGameObserver {
 
     @Override
     public void onLobbiesReceived(OpenLobbiesResponseDto openLobbiesResponseDto) {
-        Platform.runLater(() -> updateLobbyList(openLobbiesResponseDto.getLobbies()));
+        Platform.runLater(() -> updateLobbyList(openLobbiesResponseDto.lobbies()));
     }
 
     @Override
     public void onJoinLobbyResponse(JoinLobbyResponseDto joinLobbyResponseDto) {
-        if (joinLobbyResponseDto.getIsAllowed()) {
-            gameJoinedProperty.set(true);
-            Platform.runLater(() -> stage.close());
+        if (joinLobbyResponseDto.isAllowed()) {
+            joinedGameId.set(joinLobbyResponseDto.gameId());
+            Platform.runLater(stage::close);
             return;
         }
 
-        gameJoinedProperty.set(false);
+        joinedGameId.set("None");
         client.sendDto(new OpenLobbiesRequestDto());
     }
 }

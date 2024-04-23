@@ -1,6 +1,8 @@
 package ru.metapunk.battleships.model.tile.cell;
 
-public enum CellShipPresence {
+import java.io.Serializable;
+
+public enum CellShipPresence implements Serializable {
     ABSENT,
     NEIGHBORING,
     PRESENT

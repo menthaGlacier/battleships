@@ -1,6 +1,8 @@
 package ru.metapunk.battleships.model.tile.cell;
 
-public enum CellType {
+import java.io.Serializable;
+
+public enum CellType implements Serializable {
     SINGULAR,
     UPMOST_VERTICAL,
     BOTTOMMOST_VERTICAL,
