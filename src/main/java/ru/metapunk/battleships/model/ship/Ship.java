@@ -15,10 +15,14 @@ public class Ship {
     private final BooleanProperty[] isTileBombed;
 
     public Ship(ShipType type, int startRow, int startColumn) {
+        this(type, startRow, startColumn, false);
+    }
+
+    public Ship(ShipType type, int startRow, int startColumn, boolean isVertical) {
         this.type = type;
         this.startRow = startRow;
         this.startColumn = startColumn;
-        this.isVertical = new SimpleBooleanProperty(false);
+        this.isVertical = new SimpleBooleanProperty(isVertical);
         this.isAlive = new SimpleBooleanProperty(true);
         this.tilesAlive = new SimpleIntegerProperty(this.type.getSize());
         this.isTileBombed = new BooleanProperty[tilesAlive.get()];
@@ -34,6 +38,10 @@ public class Ship {
 
     public int getStartColumn() {
         return startColumn;
+    }
+
+    public boolean isIsVertical() {
+        return isVertical.get();
     }
 
     public BooleanProperty isAlive() {

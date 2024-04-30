@@ -30,35 +30,35 @@ public class ShipsData {
         convertCellsToShipData(cells);
 
         // Debug
-        System.out.println("Battleships: " + battleshipsAlive);
+        System.out.println("battleships: " + battleshipsAlive);
         for (Ship ship : battleships) {
             System.out.println("Start row and column: " +
                     ship.getStartRow() + " " + ship.getStartColumn());
-            System.out.println("\n");
+            System.out.println("Is vertical: " + ship.isIsVertical());
         }
-        System.out.println("Battleships: " + destroyersAlive);
+        System.out.println("destroyers: " + destroyersAlive);
         for (Ship ship : destroyers) {
             System.out.println("Start row and column: " +
                     ship.getStartRow() + " " + ship.getStartColumn());
-            System.out.println("\n");
+            System.out.println("Is vertical: " + ship.isIsVertical());
         }
-        System.out.println("Battleships: " + cruisersAlive);
+        System.out.println("cruisers: " + cruisersAlive);
         for (Ship ship : cruisers) {
             System.out.println("Start row and column: " +
                     ship.getStartRow() + " " + ship.getStartColumn());
-            System.out.println("\n");
+            System.out.println("Is vertical: " + ship.isIsVertical());
         }
-        System.out.println("Battleships: " + submarinesAlive);
+        System.out.println("submarines: " + submarinesAlive);
         for (Ship ship : submarines) {
             System.out.println("Start row and column: " +
                     ship.getStartRow() + " " + ship.getStartColumn());
-            System.out.println("\n");
+            System.out.println("Is vertical: " + ship.isIsVertical());
         }
     }
 
     private ShipType getShipType(Cell startCell, Cell[][] cells, int i, int j) {
+        final CellType cellType = startCell.getType();
         ShipType shipType = null;
-        CellType cellType = startCell.getType();
         int shipSize = 1;
 
         if (cellType == CellType.SINGULAR) {
@@ -84,19 +84,23 @@ public class ShipsData {
         return shipType;
     }
 
-    private void addShip(ShipType shipType, int row, int column) {
+    private void addShip(ShipType shipType, int row, int column, boolean isVertical) {
+        if (shipType == null) {
+            return;
+        }
+
         switch (shipType) {
             case SUBMARINE -> {
-                submarines[submarinesAlive] = new Ship(shipType, row, column);
+                submarines[submarinesAlive] = new Ship(shipType, row, column, isVertical);
                 submarinesAlive += 1;
             } case CRUISER -> {
-                cruisers[cruisersAlive] = new Ship(shipType, row, column);
+                cruisers[cruisersAlive] = new Ship(shipType, row, column, isVertical);
                 cruisersAlive += 1;
             } case DESTROYER -> {
-                destroyers[destroyersAlive] = new Ship(shipType, row, column);
+                destroyers[destroyersAlive] = new Ship(shipType, row, column, isVertical);
                 destroyersAlive += 1;
             } case BATTLESHIP -> {
-                battleships[battleshipsAlive] = new Ship(shipType, row, column);
+                battleships[battleshipsAlive] = new Ship(shipType, row, column, isVertical);
                 battleshipsAlive += 1;
             }
         }
@@ -107,10 +111,10 @@ public class ShipsData {
             for (int column = 0; column < Board.DEFAULT_ROWS; column++) {
                 Cell cell = cells[row][column];
                 if (cell.getShipPresence() == CellShipPresence.PRESENT) {
-                    ShipType shipType = getShipType(cell, cells, row, column);
-                    if (shipType != null) {
-                        addShip(shipType, row, column);
-                    }
+                    addShip(getShipType(cell, cells, row, column),
+                            row, column,
+                            (cell.getType() == CellType.UPMOST_VERTICAL)
+                    );
                 }
             }
         }
