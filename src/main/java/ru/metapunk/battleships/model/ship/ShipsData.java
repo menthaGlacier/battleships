@@ -5,8 +5,6 @@ import ru.metapunk.battleships.model.tile.cell.Cell;
 import ru.metapunk.battleships.model.tile.cell.CellShipPresence;
 import ru.metapunk.battleships.model.tile.cell.CellType;
 
-import java.util.Arrays;
-
 public class ShipsData {
     private final Ship[] battleships;
     private final Ship[] destroyers;
@@ -32,52 +30,59 @@ public class ShipsData {
         convertCellsToShipData(cells);
     }
 
+    private ShipType getShipType(Cell startCell, Cell[][] cells, int i, int j) {
+        ShipType shipType = null;
+        CellType cellType = startCell.getType();
+        int shipSize = 1;
+
+        if (cellType == CellType.SINGULAR) {
+            shipType = ShipType.SUBMARINE;
+        } else if (cellType == CellType.LEFTMOST_HORIZONTAL) {
+            while (cells[i][j + shipSize].getType()
+                    != CellType.RIGHTMOST_HORIZONTAL) {
+                shipSize += 1;
+            }
+
+            shipSize += 1;
+            shipType = ShipType.getShipTypeFromSize(shipSize);
+        } else if (cellType == CellType.UPMOST_VERTICAL) {
+            while (cells[i + shipSize][j].getType()
+                    != CellType.BOTTOMMOST_VERTICAL) {
+                shipSize += 1;
+            }
+
+            shipSize += 1;
+            shipType = ShipType.getShipTypeFromSize(shipSize);
+        }
+
+        return shipType;
+    }
+
+    private void addShip(ShipType shipType, int row, int column) {
+        switch (shipType) {
+            case SUBMARINE -> {
+                submarines[submarinesAlive] = new Ship(shipType, row, column);
+                submarinesAlive += 1;
+            } case CRUISER -> {
+                cruisers[cruisersAlive] = new Ship(shipType, row, column);
+                cruisersAlive += 1;
+            } case DESTROYER -> {
+                destroyers[destroyersAlive] = new Ship(shipType, row, column);
+                destroyersAlive += 1;
+            } case BATTLESHIP -> {
+                battleships[battleshipsAlive] = new Ship(shipType, row, column);
+                battleshipsAlive += 1;
+            }
+        }
+    }
+
     private void convertCellsToShipData(Cell[][] cells) {
-        for (int i = 0; i < Board.DEFAULT_ROWS; i++) {
-            for (int j = 0; j < Board.DEFAULT_ROWS; j++) {
-                Cell cell = cells[i][j];
+        for (int row = 0; row < Board.DEFAULT_ROWS; row++) {
+            for (int column = 0; column < Board.DEFAULT_ROWS; column++) {
+                Cell cell = cells[row][column];
                 if (cell.getShipPresence() == CellShipPresence.PRESENT) {
-                    int shipSize = 1;
-                    if (cell.getType() == CellType.SINGULAR) {
-                        submarines[submarinesAlive] = new Ship(ShipType.SUBMARINE, i, j);
-                        submarinesAlive += 1;
-                    } else if (cell.getType() == CellType.LEFTMOST_HORIZONTAL) {
-                        while (cells[i][j + shipSize].getType() != CellType.RIGHTMOST_HORIZONTAL) {
-                            shipSize += 1;
-                        }
-
-                        shipSize += 1;
-                        switch (shipSize) {
-                            case 2 -> {
-                                cruisers[cruisersAlive] = new Ship(ShipType.CRUISER, i, j);
-                                cruisersAlive += 1;
-                            } case 3 -> {
-                                destroyers[destroyersAlive] = new Ship(ShipType.DESTROYER, i, j);
-                                destroyersAlive += 1;
-                            } case 4 -> {
-                                battleships[battleshipsAlive] = new Ship(ShipType.BATTLESHIP, i, j);
-                                battleshipsAlive += 1;
-                            }
-                        }
-                    } else if (cell.getType() == CellType.UPMOST_VERTICAL) {
-                        while (cells[i + shipSize][j].getType() != CellType.BOTTOMMOST_VERTICAL) {
-                            shipSize += 1;
-                        }
-
-                        shipSize += 1;
-                        switch (shipSize) {
-                            case 2 -> {
-                                cruisers[cruisersAlive] = new Ship(ShipType.CRUISER, i, j);
-                                cruisersAlive += 1;
-                            } case 3 -> {
-                                destroyers[destroyersAlive] = new Ship(ShipType.DESTROYER, i, j);
-                                destroyersAlive += 1;
-                            } case 4 -> {
-                                battleships[battleshipsAlive] = new Ship(ShipType.BATTLESHIP, i, j);
-                                battleshipsAlive += 1;
-                            }
-                        }
-                    }
+                    ShipType shipType = getShipType(cell, cells, row, column);
+                    addShip(shipType, row, column);
                 }
             }
         }
