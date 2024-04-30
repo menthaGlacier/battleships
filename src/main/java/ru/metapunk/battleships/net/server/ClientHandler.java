@@ -2,10 +2,7 @@ package ru.metapunk.battleships.net.server;
 
 import ru.metapunk.battleships.net.Player;
 import ru.metapunk.battleships.net.dto.PlayerBoardSetupDto;
-import ru.metapunk.battleships.net.dto.request.CreateLobbyRequestDto;
-import ru.metapunk.battleships.net.dto.request.JoinLobbyRequestDto;
-import ru.metapunk.battleships.net.dto.request.OpenLobbiesRequestDto;
-import ru.metapunk.battleships.net.dto.request.WhoseTurnRequestDto;
+import ru.metapunk.battleships.net.dto.request.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -59,6 +56,12 @@ public class ClientHandler implements Runnable {
                     server.handleWhoseTurnRequest(this,
                             ((WhoseTurnRequestDto) dto).gameId(),
                             ((WhoseTurnRequestDto) dto).playerId());
+                } else if (dto instanceof ShotEnemyShipRequestDto) {
+                    server.handleShotEnemyShip(this,
+                            ((ShotEnemyShipRequestDto) dto).gameId(),
+                            ((ShotEnemyShipRequestDto) dto).playerId(),
+                            ((ShotEnemyShipRequestDto) dto).row(),
+                            ((ShotEnemyShipRequestDto) dto).column());
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

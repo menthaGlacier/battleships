@@ -11,6 +11,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import ru.metapunk.battleships.model.board.Board;
+import ru.metapunk.battleships.model.ship.ShipsData;
 import ru.metapunk.battleships.model.tile.Tile;
 import ru.metapunk.battleships.model.tile.cell.Cell;
 import ru.metapunk.battleships.net.client.Client;

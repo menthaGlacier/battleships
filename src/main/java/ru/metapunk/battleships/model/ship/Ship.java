@@ -6,20 +6,34 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 public class Ship {
-    private final ShipType shipType;
+    private final ShipType type;
+    private final int startRow;
+    private final int startColumn;
+    private final BooleanProperty isVertical;
     private final BooleanProperty isAlive;
     private final IntegerProperty tilesAlive;
     private final BooleanProperty[] isTileBombed;
 
-    public Ship(ShipType shipType) {
-        this.shipType = shipType;
-        this.isAlive = new SimpleBooleanProperty();
-        this.tilesAlive = new SimpleIntegerProperty(this.shipType.getSize());
+    public Ship(ShipType type, int startRow, int startColumn) {
+        this.type = type;
+        this.startRow = startRow;
+        this.startColumn = startColumn;
+        this.isVertical = new SimpleBooleanProperty(false);
+        this.isAlive = new SimpleBooleanProperty(true);
+        this.tilesAlive = new SimpleIntegerProperty(this.type.getSize());
         this.isTileBombed = new BooleanProperty[tilesAlive.get()];
     }
 
-    public ShipType getShipType() {
-        return shipType;
+    public ShipType getType() {
+        return type;
+    }
+
+    public int getStartRow() {
+        return startRow;
+    }
+
+    public int getStartColumn() {
+        return startColumn;
     }
 
     public BooleanProperty isAlive() {

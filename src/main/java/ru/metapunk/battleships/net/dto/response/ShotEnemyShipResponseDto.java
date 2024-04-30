@@ -1,11 +1,11 @@
 package ru.metapunk.battleships.net.dto.response;
 
-import ru.metapunk.battleships.model.tile.cell.CellType;
-
 import java.io.Serializable;
 
-public record ShotEnemyShipResponseDto(boolean isShotConnected,
-                                       boolean isShipDestroyed,
-                                       CellType cellType)
+public record ShotEnemyShipResponseDto(boolean isShotValid,
+                                       int row,
+                                       int column,
+                                       boolean isShotConnected,
+                                       boolean isShipDestroyed)
         implements Serializable {
 }

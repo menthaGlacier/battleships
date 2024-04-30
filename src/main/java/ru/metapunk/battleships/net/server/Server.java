@@ -5,10 +5,7 @@ import ru.metapunk.battleships.net.Game;
 import ru.metapunk.battleships.net.Lobby;
 import ru.metapunk.battleships.net.Player;
 import ru.metapunk.battleships.net.WhoseTurn;
-import ru.metapunk.battleships.net.dto.response.CreateLobbyResponseDto;
-import ru.metapunk.battleships.net.dto.response.JoinLobbyResponseDto;
-import ru.metapunk.battleships.net.dto.response.OpenLobbiesResponseDto;
-import ru.metapunk.battleships.net.dto.response.WhoseTurnResponseDto;
+import ru.metapunk.battleships.net.dto.response.*;
 import ru.metapunk.battleships.net.dto.signal.OtherPlayerJoinedSignalDto;
 import ru.metapunk.battleships.net.dto.signal.OtherPlayerReadySignalDto;
 
@@ -99,9 +96,12 @@ public class Server {
     }
 
     public void handlePlayerBoardSetup(String gameId, String playerId, Cell[][] cells) {
-        Game game = games.get(gameId);
-        if (game == null) {
-            return;
+        Game game;
+        synchronized (games) {
+            game = games.get(gameId);
+            if (game == null) {
+                return;
+            }
         }
 
         synchronized (game) {
@@ -122,9 +122,12 @@ public class Server {
     }
 
     public void handleWhoseTurnRequest(ClientHandler client, String gameId, String playerId) {
-        Game game = games.get(gameId);
-        if (game == null) {
-            return;
+        Game game;
+        synchronized (games) {
+            game = games.get(gameId);
+            if (game == null) {
+                return;
+            }
         }
 
         if (game.getWhoseTurn() == WhoseTurn.PLAYER_ONE
@@ -140,5 +143,65 @@ public class Server {
         }
 
         client.sendDto(new WhoseTurnResponseDto(false));
+    }
+
+    private boolean validatePlayerShot(Game game, String playerId,
+                                       int row, int column) {
+        Cell[][] otherPlayerBoard;
+
+        if (game.getWhoseTurn() == WhoseTurn.PLAYER_ONE
+                && game.getPlayerOne().getId().equals(playerId)) {
+            otherPlayerBoard = game.getPlayerTwoBoard();
+        } else if (game.getWhoseTurn() == WhoseTurn.PLAYER_TWO
+                && game.getPlayerTwo().getId().equals(playerId)) {
+            otherPlayerBoard = game.getPlayerOneBoard();
+        } else {
+            return false;
+        }
+
+        return !otherPlayerBoard[row][column].getBombarded();
+    }
+
+    // TODO Finish this
+    private void makeShot(ClientHandler client, Game game,
+                          String playerId, int row, int column) {
+        ClientHandler otherPlayerHandler;
+        Cell[][] otherPlayerBoard;
+
+        if (game.getWhoseTurn() == WhoseTurn.PLAYER_ONE
+                && game.getPlayerOne().getId().equals(playerId)) {
+            otherPlayerHandler = game.getPlayerTwo().getClientHandler();
+            otherPlayerBoard = game.getPlayerTwoBoard();
+        } else if (game.getWhoseTurn() == WhoseTurn.PLAYER_TWO
+                && game.getPlayerTwo().getId().equals(playerId)) {
+            otherPlayerHandler = game.getPlayerOne().getClientHandler();
+            otherPlayerBoard = game.getPlayerOneBoard();
+        } else {
+            client.sendDto(new ShotEnemyShipResponseDto(false,
+                    row, column, false, false));
+            return;
+        }
+
+        if (otherPlayerBoard[row][column].getBombarded()) {
+            client.sendDto(new ShotEnemyShipResponseDto(false,
+                    row, column, false, false));
+        }
+
+    }
+
+    // TODO finish this
+    public void handleShotEnemyShip(ClientHandler client, String gameId,
+                                    String playerId, int row, int column) {
+        Game game;
+        synchronized (games) {
+            game = games.get(gameId);
+            if (game == null) {
+                return;
+            }
+        }
+
+        synchronized (game) {
+
+        }
     }
 }
