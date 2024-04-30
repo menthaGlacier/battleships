@@ -33,6 +33,7 @@ public class GameController implements IClientGameObserver {
     private final Client client;
     private final String gameId;
     private final Tile[][] playerTiles;
+    private final ShipsData shipsData;
     private final Tile[][] enemyTiles;
     private final BooleanProperty isPlayerTurnProperty;
 
@@ -41,6 +42,7 @@ public class GameController implements IClientGameObserver {
         this.gameId = gameId;
         this.playerTiles = new Tile[Board.DEFAULT_ROWS][Board.DEFAULT_COLUMNS];
         this.enemyTiles = new Tile[Board.DEFAULT_ROWS][Board.DEFAULT_COLUMNS];
+        this.shipsData = new ShipsData(playerCells);
         this.isPlayerTurnProperty = new SimpleBooleanProperty(false);
 
         Platform.runLater(() -> setPlayerShips(playerCells));

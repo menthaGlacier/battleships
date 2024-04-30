@@ -28,6 +28,32 @@ public class ShipsData {
         this.submarinesAlive = 0;
 
         convertCellsToShipData(cells);
+
+        // Debug
+        System.out.println("Battleships: " + battleshipsAlive);
+        for (Ship ship : battleships) {
+            System.out.println("Start row and column: " +
+                    ship.getStartRow() + " " + ship.getStartColumn());
+            System.out.println("\n");
+        }
+        System.out.println("Battleships: " + destroyersAlive);
+        for (Ship ship : destroyers) {
+            System.out.println("Start row and column: " +
+                    ship.getStartRow() + " " + ship.getStartColumn());
+            System.out.println("\n");
+        }
+        System.out.println("Battleships: " + cruisersAlive);
+        for (Ship ship : cruisers) {
+            System.out.println("Start row and column: " +
+                    ship.getStartRow() + " " + ship.getStartColumn());
+            System.out.println("\n");
+        }
+        System.out.println("Battleships: " + submarinesAlive);
+        for (Ship ship : submarines) {
+            System.out.println("Start row and column: " +
+                    ship.getStartRow() + " " + ship.getStartColumn());
+            System.out.println("\n");
+        }
     }
 
     private ShipType getShipType(Cell startCell, Cell[][] cells, int i, int j) {
@@ -82,7 +108,9 @@ public class ShipsData {
                 Cell cell = cells[row][column];
                 if (cell.getShipPresence() == CellShipPresence.PRESENT) {
                     ShipType shipType = getShipType(cell, cells, row, column);
-                    addShip(shipType, row, column);
+                    if (shipType != null) {
+                        addShip(shipType, row, column);
+                    }
                 }
             }
         }
