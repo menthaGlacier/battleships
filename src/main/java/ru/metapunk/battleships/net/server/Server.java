@@ -162,7 +162,7 @@ public class Server {
         if (game.getWhoseTurn() == WhoseTurn.PLAYER_ONE
                 && game.getPlayerOne().getId().equals(playerId)) {
             otherPlayerHandler = game.getPlayerTwo().getClientHandler();
-            otherPlayerShipsData = game.getPlayerOneShipsData();
+            otherPlayerShipsData = game.getPlayerTwoShipsData();
             otherPlayerBoard = game.getPlayerTwoBoard();
         } else if (game.getWhoseTurn() == WhoseTurn.PLAYER_TWO
                 && game.getPlayerTwo().getId().equals(playerId)) {
@@ -182,14 +182,13 @@ public class Server {
         }
 
         otherPlayerShipsData.processShot(isShotConnected, isShipDestroyed, row, column);
-        if (!isShotConnected.get()) {
-            otherPlayerHandler.sendDto(new PassedTurnSignalDto());
-            game.passTurn();
-        }
-
         client.sendDto(new ShotEnemyTileResponseDto(true,
                 row, column, isShotConnected.get(), isShipDestroyed.get()));
         otherPlayerHandler.sendDto(new EnemyShotDto(row, column));
+        if (!isShotConnected.get()) {
+            game.passTurn();
+            otherPlayerHandler.sendDto(new PassedTurnSignalDto());
+        }
     }
 
     public void handleShotEnemyTile(ClientHandler client, String gameId,

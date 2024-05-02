@@ -87,11 +87,9 @@ public class Tile extends StackPane {
 
             switch (cell.getWarSide()) {
                 case PLAYER -> color = color.replaceAll("holder",
-                        colorToRgbaString(PLAYER_SHIP_TILE_BORDER_COLOR)
-                );
+                        colorToRgbaString(PLAYER_SHIP_TILE_BORDER_COLOR));
                 case ENEMY -> color = color.replaceAll("holder",
-                        colorToRgbaString(ENEMY_SHIP_TILE_BORDER_COLOR)
-                );
+                        colorToRgbaString(ENEMY_SHIP_TILE_BORDER_COLOR));
             }
         } else {
             color += (colorToRgbaString(NEUTRAL_TILE_BORDER_COLOR) + ";");
@@ -111,9 +109,9 @@ public class Tile extends StackPane {
         Circle circle;
 
         if (cell.getWarSide() == CellWarSide.ENEMY) {
-            circle = new Circle(2, ENEMY_SHIP_TILE_BORDER_COLOR);
+            circle = new Circle(2.5, ENEMY_SHIP_TILE_BORDER_COLOR);
         } else {
-            circle = new Circle(2, NEUTRAL_TILE_BORDER_COLOR);
+            circle = new Circle(2.5, NEUTRAL_TILE_BORDER_COLOR);
         }
 
         this.getChildren().add(circle);

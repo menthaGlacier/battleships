@@ -14,10 +14,6 @@ public class Ship {
     private final IntegerProperty tilesAlive;
     private final BooleanProperty[] isTileBombed;
 
-    public Ship(ShipType type, int startRow, int startColumn) {
-        this(type, startRow, startColumn, false);
-    }
-
     public Ship(ShipType type, int startRow, int startColumn, boolean isVertical) {
         this.type = type;
         this.startRow = startRow;
