@@ -3,6 +3,7 @@ package ru.metapunk.battleships.net.server;
 import ru.metapunk.battleships.net.Player;
 import ru.metapunk.battleships.net.dto.PlayerBoardSetupDto;
 import ru.metapunk.battleships.net.dto.request.*;
+import ru.metapunk.battleships.net.dto.signal.PassedTurnSignalDto;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -56,12 +57,12 @@ public class ClientHandler implements Runnable {
                     server.handleWhoseTurnRequest(this,
                             ((WhoseTurnRequestDto) dto).gameId(),
                             ((WhoseTurnRequestDto) dto).playerId());
-                } else if (dto instanceof ShotEnemyShipRequestDto) {
-                    server.handleShotEnemyShip(this,
-                            ((ShotEnemyShipRequestDto) dto).gameId(),
-                            ((ShotEnemyShipRequestDto) dto).playerId(),
-                            ((ShotEnemyShipRequestDto) dto).row(),
-                            ((ShotEnemyShipRequestDto) dto).column());
+                } else if (dto instanceof ShotEnemyTileRequestDto) {
+                    server.handleShotEnemyTile(this,
+                            ((ShotEnemyTileRequestDto) dto).gameId(),
+                            ((ShotEnemyTileRequestDto) dto).playerId(),
+                            ((ShotEnemyTileRequestDto) dto).row(),
+                            ((ShotEnemyTileRequestDto) dto).column());
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

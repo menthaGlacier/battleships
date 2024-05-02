@@ -1,13 +1,18 @@
 package ru.metapunk.battleships.net.server;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import ru.metapunk.battleships.model.ship.ShipsData;
 import ru.metapunk.battleships.model.tile.cell.Cell;
 import ru.metapunk.battleships.net.Game;
 import ru.metapunk.battleships.net.Lobby;
 import ru.metapunk.battleships.net.Player;
 import ru.metapunk.battleships.net.WhoseTurn;
+import ru.metapunk.battleships.net.dto.EnemyShotDto;
 import ru.metapunk.battleships.net.dto.response.*;
 import ru.metapunk.battleships.net.dto.signal.OtherPlayerJoinedSignalDto;
 import ru.metapunk.battleships.net.dto.signal.OtherPlayerReadySignalDto;
+import ru.metapunk.battleships.net.dto.signal.PassedTurnSignalDto;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -145,52 +150,49 @@ public class Server {
         client.sendDto(new WhoseTurnResponseDto(false));
     }
 
-    private boolean validatePlayerShot(Game game, String playerId,
-                                       int row, int column) {
-        Cell[][] otherPlayerBoard;
-
-        if (game.getWhoseTurn() == WhoseTurn.PLAYER_ONE
-                && game.getPlayerOne().getId().equals(playerId)) {
-            otherPlayerBoard = game.getPlayerTwoBoard();
-        } else if (game.getWhoseTurn() == WhoseTurn.PLAYER_TWO
-                && game.getPlayerTwo().getId().equals(playerId)) {
-            otherPlayerBoard = game.getPlayerOneBoard();
-        } else {
-            return false;
-        }
-
-        return !otherPlayerBoard[row][column].getBombarded();
-    }
-
-    // TODO Finish this
     private void makeShot(ClientHandler client, Game game,
                           String playerId, int row, int column) {
+        final BooleanProperty isShotConnected = new SimpleBooleanProperty(false);
+        final BooleanProperty isShipDestroyed = new SimpleBooleanProperty(false);
+
         ClientHandler otherPlayerHandler;
+        ShipsData otherPlayerShipsData;
         Cell[][] otherPlayerBoard;
 
         if (game.getWhoseTurn() == WhoseTurn.PLAYER_ONE
                 && game.getPlayerOne().getId().equals(playerId)) {
             otherPlayerHandler = game.getPlayerTwo().getClientHandler();
+            otherPlayerShipsData = game.getPlayerOneShipsData();
             otherPlayerBoard = game.getPlayerTwoBoard();
         } else if (game.getWhoseTurn() == WhoseTurn.PLAYER_TWO
                 && game.getPlayerTwo().getId().equals(playerId)) {
             otherPlayerHandler = game.getPlayerOne().getClientHandler();
+            otherPlayerShipsData = game.getPlayerOneShipsData();
             otherPlayerBoard = game.getPlayerOneBoard();
         } else {
-            client.sendDto(new ShotEnemyShipResponseDto(false,
-                    row, column, false, false));
+            client.sendDto(new ShotEnemyTileResponseDto(false,
+                    row, column, isShotConnected.get(), isShipDestroyed.get()));
             return;
         }
 
         if (otherPlayerBoard[row][column].getBombarded()) {
-            client.sendDto(new ShotEnemyShipResponseDto(false,
-                    row, column, false, false));
+            client.sendDto(new ShotEnemyTileResponseDto(false,
+                    row, column, isShotConnected.get(), isShipDestroyed.get()));
+            return;
         }
 
+        otherPlayerShipsData.processShot(isShotConnected, isShipDestroyed, row, column);
+        if (!isShotConnected.get()) {
+            otherPlayerHandler.sendDto(new PassedTurnSignalDto());
+            game.passTurn();
+        }
+
+        client.sendDto(new ShotEnemyTileResponseDto(true,
+                row, column, isShotConnected.get(), isShipDestroyed.get()));
+        otherPlayerHandler.sendDto(new EnemyShotDto(row, column));
     }
 
-    // TODO finish this
-    public void handleShotEnemyShip(ClientHandler client, String gameId,
+    public void handleShotEnemyTile(ClientHandler client, String gameId,
                                     String playerId, int row, int column) {
         Game game;
         synchronized (games) {
@@ -201,7 +203,7 @@ public class Server {
         }
 
         synchronized (game) {
-
+            makeShot(client, game, playerId, row, column);
         }
     }
 }

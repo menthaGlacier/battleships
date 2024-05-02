@@ -154,7 +154,7 @@ public class MainController implements IClientMainObserver {
     }
 
     @Override
-    public void onLobbyCreated(CreateLobbyResponseDto createLobbyResponseDto) {
+    public void onLobbyCreated(CreateLobbyResponseDto data) {
         final StringProperty joinedGameIdProperty = new SimpleStringProperty("None");
         Platform.runLater(() -> {
             final Stage dialog = new Stage();

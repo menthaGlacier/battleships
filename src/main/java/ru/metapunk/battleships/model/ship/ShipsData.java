@@ -1,15 +1,13 @@
 package ru.metapunk.battleships.model.ship;
 
+import javafx.beans.property.BooleanProperty;
 import ru.metapunk.battleships.model.board.Board;
 import ru.metapunk.battleships.model.tile.cell.Cell;
 import ru.metapunk.battleships.model.tile.cell.CellShipPresence;
 import ru.metapunk.battleships.model.tile.cell.CellType;
 
 public class ShipsData {
-    private final Ship[] battleships;
-    private final Ship[] destroyers;
-    private final Ship[] cruisers;
-    private final Ship[] submarines;
+    private final Ship[] ships;
 
     private int battleshipsAlive;
     private int destroyersAlive;
@@ -17,10 +15,7 @@ public class ShipsData {
     private int submarinesAlive;
 
     public ShipsData(Cell[][] cells) {
-        this.battleships = new Ship[1];
-        this.destroyers = new Ship[2];
-        this.cruisers = new Ship[3];
-        this.submarines = new Ship[4];
+        this.ships = new Ship[10];
 
         this.battleshipsAlive = 0;
         this.destroyersAlive = 0;
@@ -30,29 +25,82 @@ public class ShipsData {
         convertCellsToShipData(cells);
 
         // Debug
-        System.out.println("battleships: " + battleshipsAlive);
-        for (Ship ship : battleships) {
-            System.out.println("Start row and column: " +
-                    ship.getStartRow() + " " + ship.getStartColumn());
-            System.out.println("Is vertical: " + ship.isIsVertical());
+//        for (Ship ship : ships) {
+//            switch (ship.getType()) {
+//                case BATTLESHIP -> System.out.println("Battleship:");
+//                case DESTROYER -> System.out.println("Destroyer:");
+//                case CRUISER -> System.out.println("Cruiser:");
+//                case SUBMARINE -> System.out.println("Submarine:");
+//            }
+//
+//            System.out.println("\tStart row and column: " +
+//                    ship.getStartRow() + " " + ship.getStartColumn());
+//            System.out.println("\tIs vertical: " + ship.isIsVertical());
+//        }
+    }
+
+    public int getTotalShipsAlive() {
+        return submarinesAlive + cruisersAlive +
+                destroyersAlive + battleshipsAlive;
+    }
+
+    private boolean processShipAliveState(Ship ship, int shipSize) {
+        boolean isAnyTileAlive = false;
+        for (int i = 0; i < shipSize; i++) {
+            if (!ship.getIsTileBombed(i)) {
+                isAnyTileAlive = true;
+                break;
+            }
         }
-        System.out.println("destroyers: " + destroyersAlive);
-        for (Ship ship : destroyers) {
-            System.out.println("Start row and column: " +
-                    ship.getStartRow() + " " + ship.getStartColumn());
-            System.out.println("Is vertical: " + ship.isIsVertical());
+
+        if (!isAnyTileAlive) {
+            ship.setIsAlive(false);
+            switch (ship.getType()) {
+                case BATTLESHIP -> battleshipsAlive -= 1;
+                case DESTROYER -> destroyersAlive -= 1;
+                case CRUISER -> cruisersAlive -= 1;
+                case SUBMARINE -> submarinesAlive -= 1;
+            }
+
+            return true;
         }
-        System.out.println("cruisers: " + cruisersAlive);
-        for (Ship ship : cruisers) {
-            System.out.println("Start row and column: " +
-                    ship.getStartRow() + " " + ship.getStartColumn());
-            System.out.println("Is vertical: " + ship.isIsVertical());
-        }
-        System.out.println("submarines: " + submarinesAlive);
-        for (Ship ship : submarines) {
-            System.out.println("Start row and column: " +
-                    ship.getStartRow() + " " + ship.getStartColumn());
-            System.out.println("Is vertical: " + ship.isIsVertical());
+
+        return false;
+    }
+
+    public void processShot(BooleanProperty isShotConnected,
+                            BooleanProperty isShipDestroyed,
+                            int shotRow, int shotColumn) {
+        for (Ship ship : ships) {
+            final int shipStartRow = ship.getStartRow();
+            final int shipStartColumn = ship.getStartColumn();
+            final int shipSize = ship.getType().getSize();
+            if (ship.getType() == ShipType.SUBMARINE) {
+                if (shipStartRow == shotRow && shipStartColumn == shotColumn) {
+                    ship.setIsTileBombed(0, true);
+                    isShotConnected.set(true);
+                    isShipDestroyed.set(processShipAliveState(ship, shipSize));
+                    return;
+                }
+            }
+
+            if (ship.isIsVertical()) {
+                if (shipStartColumn == shotColumn && (shipStartRow <= shotRow
+                        && shipStartRow + shipSize - 1 >= shotRow)) {
+                    ship.setIsTileBombed(shipStartRow + shipSize - shotRow - 1, true);
+                    isShotConnected.set(true);
+                    isShipDestroyed.set(processShipAliveState(ship, shipSize));
+                    return;
+                }
+            }
+
+            if (shipStartRow == shotRow && (shipStartColumn <= shotColumn
+                    && shipStartColumn + shipSize - 1 >= shotColumn)) {
+                ship.setIsTileBombed(shipStartColumn + shipSize - shotColumn - 1, true);
+                isShotConnected.set(true);
+                isShipDestroyed.set(processShipAliveState(ship, shipSize));
+                return;
+            }
         }
     }
 
@@ -89,20 +137,12 @@ public class ShipsData {
             return;
         }
 
+        ships[getTotalShipsAlive()] = new Ship(shipType, row, column, isVertical);
         switch (shipType) {
-            case SUBMARINE -> {
-                submarines[submarinesAlive] = new Ship(shipType, row, column, isVertical);
-                submarinesAlive += 1;
-            } case CRUISER -> {
-                cruisers[cruisersAlive] = new Ship(shipType, row, column, isVertical);
-                cruisersAlive += 1;
-            } case DESTROYER -> {
-                destroyers[destroyersAlive] = new Ship(shipType, row, column, isVertical);
-                destroyersAlive += 1;
-            } case BATTLESHIP -> {
-                battleships[battleshipsAlive] = new Ship(shipType, row, column, isVertical);
-                battleshipsAlive += 1;
-            }
+            case SUBMARINE -> submarinesAlive += 1;
+            case CRUISER -> cruisersAlive += 1;
+            case DESTROYER -> destroyersAlive += 1;
+            case BATTLESHIP -> battleshipsAlive += 1;
         }
     }
 

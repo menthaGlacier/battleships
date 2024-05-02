@@ -25,7 +25,11 @@ public class Ship {
         this.isVertical = new SimpleBooleanProperty(isVertical);
         this.isAlive = new SimpleBooleanProperty(true);
         this.tilesAlive = new SimpleIntegerProperty(this.type.getSize());
-        this.isTileBombed = new BooleanProperty[tilesAlive.get()];
+        this.isTileBombed = new BooleanProperty[this.type.getSize()];
+
+        for (int i = 0; i < this.type.getSize(); i++) {
+            isTileBombed[i] = new SimpleBooleanProperty(false);
+        }
     }
 
     public ShipType getType() {

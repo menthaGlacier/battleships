@@ -1,11 +1,10 @@
 package ru.metapunk.battleships.net.client;
 
-import ru.metapunk.battleships.net.dto.response.JoinLobbyResponseDto;
-import ru.metapunk.battleships.net.dto.response.OpenLobbiesResponseDto;
-import ru.metapunk.battleships.net.dto.response.CreateLobbyResponseDto;
-import ru.metapunk.battleships.net.dto.response.WhoseTurnResponseDto;
+import ru.metapunk.battleships.net.dto.EnemyShotDto;
+import ru.metapunk.battleships.net.dto.response.*;
 import ru.metapunk.battleships.net.dto.signal.OtherPlayerJoinedSignalDto;
 import ru.metapunk.battleships.net.dto.signal.OtherPlayerReadySignalDto;
+import ru.metapunk.battleships.net.dto.signal.PassedTurnSignalDto;
 import ru.metapunk.battleships.observer.*;
 
 import java.io.IOException;
@@ -64,6 +63,15 @@ public class Client implements Runnable {
                 } else if (dto instanceof WhoseTurnResponseDto) {
                     ((IClientGameObserver) eventsObserver)
                             .onWhoseTurnResponse((WhoseTurnResponseDto) dto);
+                } else if (dto instanceof PassedTurnSignalDto) {
+                    ((IClientGameObserver) eventsObserver)
+                            .onPassedTurn();
+                } else if (dto instanceof ShotEnemyTileResponseDto) {
+                    ((IClientGameObserver) eventsObserver)
+                            .onShotEnemyTileResponse((ShotEnemyTileResponseDto) dto);
+                } else if (dto instanceof EnemyShotDto) {
+                    ((IClientGameObserver) eventsObserver)
+                            .onEnemyShot((EnemyShotDto) dto);
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

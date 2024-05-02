@@ -2,7 +2,7 @@ package ru.metapunk.battleships.net.dto.response;
 
 import java.io.Serializable;
 
-public record ShotEnemyShipResponseDto(boolean isShotValid,
+public record ShotEnemyTileResponseDto(boolean isShotValid,
                                        int row,
                                        int column,
                                        boolean isShotConnected,

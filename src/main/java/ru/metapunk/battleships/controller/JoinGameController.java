@@ -88,14 +88,14 @@ public class JoinGameController implements IClientJoinGameObserver {
     }
 
     @Override
-    public void onLobbiesReceived(OpenLobbiesResponseDto openLobbiesResponseDto) {
-        Platform.runLater(() -> updateLobbyList(openLobbiesResponseDto.lobbies()));
+    public void onLobbiesReceived(OpenLobbiesResponseDto data) {
+        Platform.runLater(() -> updateLobbyList(data.lobbies()));
     }
 
     @Override
-    public void onJoinLobbyResponse(JoinLobbyResponseDto joinLobbyResponseDto) {
-        if (joinLobbyResponseDto.isAllowed()) {
-            joinedGameId.set(joinLobbyResponseDto.gameId());
+    public void onJoinLobbyResponse(JoinLobbyResponseDto data) {
+        if (data.isAllowed()) {
+            joinedGameId.set(data.gameId());
             Platform.runLater(stage::close);
             return;
         }

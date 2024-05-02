@@ -11,12 +11,14 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import ru.metapunk.battleships.model.board.Board;
-import ru.metapunk.battleships.model.ship.ShipsData;
 import ru.metapunk.battleships.model.tile.Tile;
 import ru.metapunk.battleships.model.tile.cell.Cell;
+import ru.metapunk.battleships.model.tile.cell.CellWarSide;
 import ru.metapunk.battleships.net.client.Client;
-import ru.metapunk.battleships.net.dto.request.ShotEnemyShipRequestDto;
+import ru.metapunk.battleships.net.dto.EnemyShotDto;
+import ru.metapunk.battleships.net.dto.request.ShotEnemyTileRequestDto;
 import ru.metapunk.battleships.net.dto.request.WhoseTurnRequestDto;
+import ru.metapunk.battleships.net.dto.response.ShotEnemyTileResponseDto;
 import ru.metapunk.battleships.net.dto.response.WhoseTurnResponseDto;
 import ru.metapunk.battleships.observer.IClientGameObserver;
 
@@ -33,7 +35,6 @@ public class GameController implements IClientGameObserver {
     private final Client client;
     private final String gameId;
     private final Tile[][] playerTiles;
-    private final ShipsData shipsData;
     private final Tile[][] enemyTiles;
     private final BooleanProperty isPlayerTurnProperty;
 
@@ -42,7 +43,6 @@ public class GameController implements IClientGameObserver {
         this.gameId = gameId;
         this.playerTiles = new Tile[Board.DEFAULT_ROWS][Board.DEFAULT_COLUMNS];
         this.enemyTiles = new Tile[Board.DEFAULT_ROWS][Board.DEFAULT_COLUMNS];
-        this.shipsData = new ShipsData(playerCells);
         this.isPlayerTurnProperty = new SimpleBooleanProperty(false);
 
         Platform.runLater(() -> setPlayerShips(playerCells));
@@ -60,7 +60,7 @@ public class GameController implements IClientGameObserver {
         int row = GridPane.getRowIndex(tile);
         int column = GridPane.getColumnIndex(tile);
 
-        client.sendDto(new ShotEnemyShipRequestDto(
+        client.sendDto(new ShotEnemyTileRequestDto(
                 gameId, client.getClientId(), row, column));
     }
 
@@ -90,7 +90,39 @@ public class GameController implements IClientGameObserver {
     }
 
     @Override
-    public void onWhoseTurnResponse(WhoseTurnResponseDto whoseTurnResponseDto) {
-        isPlayerTurnProperty.set(whoseTurnResponseDto.isPlayerTurn());
+    public void onWhoseTurnResponse(WhoseTurnResponseDto data) {
+        Platform.runLater(() -> isPlayerTurnProperty.set(data.isPlayerTurn()));
+    }
+
+    @Override
+    public void onPassedTurn() {
+        Platform.runLater(() -> isPlayerTurnProperty.set(true));
+    }
+
+    @Override
+    public void onShotEnemyTileResponse(ShotEnemyTileResponseDto data) {
+        if (!data.isShotValid()) {
+            return;
+        }
+
+        Platform.runLater(() -> {
+            Tile tile = enemyTiles[data.row()][data.column()];
+            tile.getCell().setBombarded(true);
+
+            if (!data.isShotConnected()) {
+                isPlayerTurnProperty.set(false);
+            } else {
+                tile.getCell().setWarSide(CellWarSide.ENEMY);
+            }
+
+            tile.putDotMark();
+            tile.applyTileStyle();
+        });
+    }
+
+    @Override
+    public void onEnemyShot(EnemyShotDto data) {
+        Platform.runLater(() ->
+                playerTiles[data.row()][data.column()].putDotMark());
     }
 }

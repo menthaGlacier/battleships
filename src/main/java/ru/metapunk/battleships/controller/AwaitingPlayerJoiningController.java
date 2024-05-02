@@ -30,8 +30,8 @@ public class AwaitingPlayerJoiningController implements IClientLobbyAwaitingObse
     }
 
     @Override
-    public void onOtherPlayerJoined(OtherPlayerJoinedSignalDto otherPlayerJoinedSignalDto) {
-        joinedGameIdProperty.set(otherPlayerJoinedSignalDto.gameId());
+    public void onOtherPlayerJoined(OtherPlayerJoinedSignalDto data) {
+        joinedGameIdProperty.set(data.gameId());
         Platform.runLater(stage::close);
     }
 }
