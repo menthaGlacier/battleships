@@ -10,6 +10,7 @@ import ru.metapunk.battleships.net.Player;
 import ru.metapunk.battleships.net.WhoseTurn;
 import ru.metapunk.battleships.net.dto.EnemyShotDto;
 import ru.metapunk.battleships.net.dto.response.*;
+import ru.metapunk.battleships.net.dto.signal.GameFinishedSignalDto;
 import ru.metapunk.battleships.net.dto.signal.OtherPlayerJoinedSignalDto;
 import ru.metapunk.battleships.net.dto.signal.OtherPlayerReadySignalDto;
 import ru.metapunk.battleships.net.dto.signal.PassedTurnSignalDto;
@@ -150,23 +151,23 @@ public class Server {
         client.sendDto(new WhoseTurnResponseDto(false));
     }
 
-    private void makeShot(ClientHandler client, Game game,
+    private void makeShot(ClientHandler client, String gameId, Game game,
                           String playerId, int row, int column) {
         final BooleanProperty isShotConnected = new SimpleBooleanProperty(false);
         final BooleanProperty isShipDestroyed = new SimpleBooleanProperty(false);
 
-        ClientHandler otherPlayerHandler;
+        ClientHandler otherPlayerClient;
         ShipsData otherPlayerShipsData;
         Cell[][] otherPlayerBoard;
 
         if (game.getWhoseTurn() == WhoseTurn.PLAYER_ONE
                 && game.getPlayerOne().getId().equals(playerId)) {
-            otherPlayerHandler = game.getPlayerTwo().getClientHandler();
+            otherPlayerClient = game.getPlayerTwo().getClientHandler();
             otherPlayerShipsData = game.getPlayerTwoShipsData();
             otherPlayerBoard = game.getPlayerTwoBoard();
         } else if (game.getWhoseTurn() == WhoseTurn.PLAYER_TWO
                 && game.getPlayerTwo().getId().equals(playerId)) {
-            otherPlayerHandler = game.getPlayerOne().getClientHandler();
+            otherPlayerClient = game.getPlayerOne().getClientHandler();
             otherPlayerShipsData = game.getPlayerOneShipsData();
             otherPlayerBoard = game.getPlayerOneBoard();
         } else {
@@ -184,11 +185,22 @@ public class Server {
         otherPlayerShipsData.processShot(isShotConnected, isShipDestroyed, row, column);
         client.sendDto(new ShotEnemyTileResponseDto(true,
                 row, column, isShotConnected.get(), isShipDestroyed.get()));
-        otherPlayerHandler.sendDto(new EnemyShotDto(row, column));
+        otherPlayerClient.sendDto(new EnemyShotDto(row, column));
+
         if (!isShotConnected.get()) {
             game.passTurn();
-            otherPlayerHandler.sendDto(new PassedTurnSignalDto());
+            otherPlayerClient.sendDto(new PassedTurnSignalDto());
+            return;
         }
+
+        if (otherPlayerShipsData.getTotalShipsAlive() == 0) {
+            client.sendDto(new GameFinishedSignalDto(true));
+            otherPlayerClient.sendDto(new GameFinishedSignalDto(false));
+            synchronized (games) {
+                games.remove(gameId, game);
+            }
+        }
+
     }
 
     public void handleShotEnemyTile(ClientHandler client, String gameId,
@@ -202,7 +214,7 @@ public class Server {
         }
 
         synchronized (game) {
-            makeShot(client, game, playerId, row, column);
+            makeShot(client, gameId, game, playerId, row, column);
         }
     }
 }

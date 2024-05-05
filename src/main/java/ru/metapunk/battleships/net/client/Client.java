@@ -2,6 +2,7 @@ package ru.metapunk.battleships.net.client;
 
 import ru.metapunk.battleships.net.dto.EnemyShotDto;
 import ru.metapunk.battleships.net.dto.response.*;
+import ru.metapunk.battleships.net.dto.signal.GameFinishedSignalDto;
 import ru.metapunk.battleships.net.dto.signal.OtherPlayerJoinedSignalDto;
 import ru.metapunk.battleships.net.dto.signal.OtherPlayerReadySignalDto;
 import ru.metapunk.battleships.net.dto.signal.PassedTurnSignalDto;
@@ -72,6 +73,9 @@ public class Client implements Runnable {
                 } else if (dto instanceof EnemyShotDto) {
                     ((IClientGameObserver) eventsObserver)
                             .onEnemyShot((EnemyShotDto) dto);
+                } else if (dto instanceof GameFinishedSignalDto) {
+                    ((IClientGameObserver) eventsObserver)
+                            .onGameFinished((GameFinishedSignalDto) dto);
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

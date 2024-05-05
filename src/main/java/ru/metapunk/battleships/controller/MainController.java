@@ -36,6 +36,11 @@ public class MainController implements IClientMainObserver {
         new Thread(client).start();
     }
 
+    public MainController(Client client) {
+        this.client = client;
+        this.client.setEventsObserver(this);
+    }
+
     @FXML
     private void onJoinGameButtonClick() {
         StringProperty joinedGameIdProperty = new SimpleStringProperty("None");

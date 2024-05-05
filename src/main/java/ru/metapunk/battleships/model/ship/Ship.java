@@ -44,10 +44,6 @@ public class Ship {
         return isVertical.get();
     }
 
-    public BooleanProperty isAlive() {
-        return isAlive;
-    }
-
     public boolean getIsAlive() {
         return this.isAlive.get();
     }
@@ -66,10 +62,6 @@ public class Ship {
 
     public void setTilesAlive(int tilesAlive) {
         this.tilesAlive.set(tilesAlive);
-    }
-
-    public BooleanProperty isTileBombed(int index) {
-        return isTileBombed[index];
     }
 
     public boolean getIsTileBombed(int index) {

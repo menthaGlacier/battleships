@@ -5,11 +5,15 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import ru.metapunk.battleships.model.board.Board;
 import ru.metapunk.battleships.model.tile.Tile;
 import ru.metapunk.battleships.model.tile.cell.Cell;
@@ -20,7 +24,10 @@ import ru.metapunk.battleships.net.dto.request.ShotEnemyTileRequestDto;
 import ru.metapunk.battleships.net.dto.request.WhoseTurnRequestDto;
 import ru.metapunk.battleships.net.dto.response.ShotEnemyTileResponseDto;
 import ru.metapunk.battleships.net.dto.response.WhoseTurnResponseDto;
+import ru.metapunk.battleships.net.dto.signal.GameFinishedSignalDto;
 import ru.metapunk.battleships.observer.IClientGameObserver;
+
+import java.io.IOException;
 
 public class GameController implements IClientGameObserver {
     @FXML
@@ -49,6 +56,22 @@ public class GameController implements IClientGameObserver {
 
         this.client.setEventsObserver(this);
         this.client.sendDto(new WhoseTurnRequestDto(gameId, client.getClientId()));
+    }
+
+    private void changeToMainScene() {
+        Stage stage = (Stage) root.getScene().getWindow();
+        FXMLLoader loader = new FXMLLoader((getClass()
+                .getResource("/ru/metapunk/battleships/fxml/main-view.fxml")));
+        loader.setControllerFactory(controllerClass ->
+                new MainController(client));
+
+        try {
+            stage.setScene(new Scene(loader.load()));
+        } catch (IOException e) {
+            System.out.println(e.getMessage() + "\n" + e.getCause());
+        }
+
+        stage.setTitle("Battleships");
     }
 
     private void handleEnemyTileClick(MouseEvent e, Tile tile) {
@@ -124,5 +147,30 @@ public class GameController implements IClientGameObserver {
     public void onEnemyShot(EnemyShotDto data) {
         Platform.runLater(() ->
                 playerTiles[data.row()][data.column()].putDotMark());
+    }
+
+    @Override
+    public void onGameFinished(GameFinishedSignalDto dto) {
+        Platform.runLater(() -> {
+            final Stage dialog = new Stage();
+            FXMLLoader loader = new FXMLLoader((getClass()
+                    .getResource("/ru/metapunk/battleships/fxml/game-finished-view.fxml")));
+            loader.setControllerFactory(controllerClass ->
+                    new GameFinishedController(dialog, dto.hasPlayerWon()));
+
+            try {
+                dialog.setScene(new Scene(loader.load()));
+            } catch (IOException e) {
+                System.out.println(e.getMessage() + "\n" + e.getCause());
+            }
+
+            dialog.setTitle("Game finished!");
+            dialog.setResizable(false);
+            dialog.initModality(Modality.WINDOW_MODAL);
+            dialog.initOwner(root.getScene().getWindow());
+            dialog.showAndWait();
+            changeToMainScene();
+
+        });
     }
 }

@@ -92,7 +92,7 @@ public class ShipsData {
         }
     }
 
-    private ShipType getShipType(Cell startCell, Cell[][] cells, int i, int j) {
+    private ShipType getShipType(Cell startCell, Cell[][] cells, int row, int column) {
         final CellType cellType = startCell.getType();
         ShipType shipType = null;
         int shipSize = 1;
@@ -100,7 +100,7 @@ public class ShipsData {
         if (cellType == CellType.SINGULAR) {
             shipType = ShipType.SUBMARINE;
         } else if (cellType == CellType.LEFTMOST_HORIZONTAL) {
-            while (cells[i][j + shipSize].getType()
+            while (cells[row][column + shipSize].getType()
                     != CellType.RIGHTMOST_HORIZONTAL) {
                 shipSize += 1;
             }
@@ -108,7 +108,7 @@ public class ShipsData {
             shipSize += 1;
             shipType = ShipType.getShipTypeFromSize(shipSize);
         } else if (cellType == CellType.UPMOST_VERTICAL) {
-            while (cells[i + shipSize][j].getType()
+            while (cells[row + shipSize][column].getType()
                     != CellType.BOTTOMMOST_VERTICAL) {
                 shipSize += 1;
             }
