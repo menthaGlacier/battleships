@@ -23,20 +23,6 @@ public class ShipsData {
         this.submarinesAlive = 0;
 
         convertCellsToShipData(cells);
-
-        // Debug
-//        for (Ship ship : ships) {
-//            switch (ship.getType()) {
-//                case BATTLESHIP -> System.out.println("Battleship:");
-//                case DESTROYER -> System.out.println("Destroyer:");
-//                case CRUISER -> System.out.println("Cruiser:");
-//                case SUBMARINE -> System.out.println("Submarine:");
-//            }
-//
-//            System.out.println("\tStart row and column: " +
-//                    ship.getStartRow() + " " + ship.getStartColumn());
-//            System.out.println("\tIs vertical: " + ship.isIsVertical());
-//        }
     }
 
     public int getTotalShipsAlive() {
@@ -92,6 +78,8 @@ public class ShipsData {
                     isShipDestroyed.set(processShipAliveState(ship, shipSize));
                     return;
                 }
+
+                continue;
             }
 
             if (shipStartRow == shotRow && (shipStartColumn <= shotColumn
