@@ -30,29 +30,21 @@ public class ShipsData {
                 destroyersAlive + battleshipsAlive;
     }
 
-    // TODO fix this naming
-    private boolean processShipAliveState(Ship ship, int shipSize) {
-        boolean isAnyTileAlive = false;
-        for (int i = 0; i < shipSize; i++) {
-            if (!ship.getIsTileBombed(i)) {
-                isAnyTileAlive = true;
-                break;
-            }
+    private void processShipAliveState(ShotWrapper shotWrapper,
+                                       Ship ship, int shipSize) {
+        if (ship.getTilesBombed() != shipSize) {
+            return;
         }
 
-        if (!isAnyTileAlive) {
-            ship.setIsAlive(false);
-            switch (ship.getType()) {
-                case BATTLESHIP -> battleshipsAlive -= 1;
-                case DESTROYER -> destroyersAlive -= 1;
-                case CRUISER -> cruisersAlive -= 1;
-                case SUBMARINE -> submarinesAlive -= 1;
-            }
+        shotWrapper.setIsShipDestroyed(true);
+        shotWrapper.setDestroyedShip(ship);
 
-            return true;
+        switch (ship.getType()) {
+            case BATTLESHIP -> battleshipsAlive -= 1;
+            case DESTROYER -> destroyersAlive -= 1;
+            case CRUISER -> cruisersAlive -= 1;
+            case SUBMARINE -> submarinesAlive -= 1;
         }
-
-        return false;
     }
 
     public void processShot(int shotRow, int shotColumn, ShotWrapper shotWrapper) {
@@ -62,13 +54,9 @@ public class ShipsData {
             final int shipSize = ship.getType().getSize();
             if (ship.getType() == ShipType.SUBMARINE) {
                 if (shipStartRow == shotRow && shipStartColumn == shotColumn) {
-                    ship.setIsTileBombed(0, true);
+                    ship.incrementTilesBombed();
                     shotWrapper.setIsShotConnected(true);
-                    if (processShipAliveState(ship, shipSize)) {
-                        shotWrapper.setIsShipDestroyed(true);
-                        shotWrapper.setDestroyedShip(ship);
-                    }
-
+                    processShipAliveState(shotWrapper, ship, shipSize);
                     return;
                 }
             }
@@ -76,13 +64,9 @@ public class ShipsData {
             if (ship.getDirection() == ShipDirection.HORIZONTAL) {
                 if (shipStartRow == shotRow && (shipStartColumn <= shotColumn
                         && shipStartColumn + shipSize - 1 >= shotColumn)) {
-                    ship.setIsTileBombed(shipStartColumn + shipSize - shotColumn - 1, true);
+                    ship.incrementTilesBombed();
                     shotWrapper.setIsShotConnected(true);
-                    if (processShipAliveState(ship, shipSize)) {
-                        shotWrapper.setIsShipDestroyed(true);
-                        shotWrapper.setDestroyedShip(ship);
-                    }
-
+                    processShipAliveState(shotWrapper, ship, shipSize);
                     return;
                 }
 
@@ -91,13 +75,9 @@ public class ShipsData {
 
             if (shipStartColumn == shotColumn && (shipStartRow <= shotRow
                     && shipStartRow + shipSize - 1 >= shotRow)) {
-                ship.setIsTileBombed(shipStartRow + shipSize - shotRow - 1, true);
+                ship.incrementTilesBombed();
                 shotWrapper.setIsShotConnected(true);
-                if (processShipAliveState(ship, shipSize)) {
-                    shotWrapper.setIsShipDestroyed(true);
-                    shotWrapper.setDestroyedShip(ship);
-                }
-
+                processShipAliveState(shotWrapper, ship, shipSize);
                 return;
             }
         }
