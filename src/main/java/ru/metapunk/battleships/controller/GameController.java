@@ -15,6 +15,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import ru.metapunk.battleships.model.board.Board;
+import ru.metapunk.battleships.model.ship.ShipDirection;
 import ru.metapunk.battleships.model.ship.ShipType;
 import ru.metapunk.battleships.model.tile.Tile;
 import ru.metapunk.battleships.model.tile.cell.Cell;
@@ -143,9 +144,9 @@ public class GameController implements IClientGameObserver {
     }
 
     private void markAdjustmentTiles(int row, int column,
-                                     ShipType shipType, boolean isShipHorizontal) {
+                                     ShipType shipType, ShipDirection direction) {
         for (int i = -1; i < shipType.getSize() + 1; i++) {
-            if (isShipHorizontal) {
+            if (direction == ShipDirection.HORIZONTAL) {
                 markTile(getTileFromGrid(row - 1, column + i));
                 markTile(getTileFromGrid(row + 1, column + i));
             } else {
@@ -154,7 +155,7 @@ public class GameController implements IClientGameObserver {
             }
         }
 
-        if (isShipHorizontal) {
+        if (direction == ShipDirection.HORIZONTAL) {
             markTile(getTileFromGrid(row, column - 1));
             markTile(getTileFromGrid(row, column + shipType.getSize()));
         } else {
@@ -188,21 +189,21 @@ public class GameController implements IClientGameObserver {
                 final int startColumn = data.destroyedShip().getStartColumn();
 
                 for (int i = 0; i < shipType.getSize(); i++) {
-                    if (data.destroyedShip().isIsVertical()) {
+                    if (data.destroyedShip().getDirection() == ShipDirection.VERTICAL) {
                         enemyTiles[startRow + i][startColumn].getCell()
-                                .setType(CellType.findTileType(i, shipType, false));
+                                .setType(CellType.findTileType(i, shipType, data.destroyedShip().getDirection()));
                         tile.getCell().setWarSide(CellWarSide.ENEMY);
                         enemyTiles[startRow + i][startColumn].putXMark();
                         tile.applyTileStyle();
                     } else {
                         enemyTiles[startRow][startColumn + 1].getCell()
-                                .setType(CellType.findTileType(i, shipType, true));
+                                .setType(CellType.findTileType(i, shipType, data.destroyedShip().getDirection()));
                         tile.getCell().setWarSide(CellWarSide.ENEMY);
                         enemyTiles[startRow][startColumn + i].putXMark();
                         tile.applyTileStyle();
                     }
                     markAdjustmentTiles(startRow, startColumn,
-                            shipType, !data.destroyedShip().isIsVertical());
+                            shipType, data.destroyedShip().getDirection());
                 }
             }
         });
@@ -221,10 +222,11 @@ public class GameController implements IClientGameObserver {
             final int startColumn = data.destroyedShip().getStartColumn();
 
             for (int i = 0; i < shipType.getSize(); i++) {
-                if (data.destroyedShip().isIsVertical()) {
-                    playerTiles[startRow + i][startColumn].putXMark();
-                } else {
+                if (data.destroyedShip().getDirection() == ShipDirection.HORIZONTAL) {
                     playerTiles[startRow][startColumn + i].putXMark();
+                } else {
+                    playerTiles[startRow + i][startColumn].putXMark();
+
                 }
             }
         });

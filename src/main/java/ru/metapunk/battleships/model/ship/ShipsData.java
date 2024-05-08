@@ -73,10 +73,10 @@ public class ShipsData {
                 }
             }
 
-            if (ship.isIsVertical()) {
-                if (shipStartColumn == shotColumn && (shipStartRow <= shotRow
-                        && shipStartRow + shipSize - 1 >= shotRow)) {
-                    ship.setIsTileBombed(shipStartRow + shipSize - shotRow - 1, true);
+            if (ship.getDirection() == ShipDirection.HORIZONTAL) {
+                if (shipStartRow == shotRow && (shipStartColumn <= shotColumn
+                        && shipStartColumn + shipSize - 1 >= shotColumn)) {
+                    ship.setIsTileBombed(shipStartColumn + shipSize - shotColumn - 1, true);
                     shotWrapper.setIsShotConnected(true);
                     if (processShipAliveState(ship, shipSize)) {
                         shotWrapper.setIsShipDestroyed(true);
@@ -89,9 +89,9 @@ public class ShipsData {
                 continue;
             }
 
-            if (shipStartRow == shotRow && (shipStartColumn <= shotColumn
-                    && shipStartColumn + shipSize - 1 >= shotColumn)) {
-                ship.setIsTileBombed(shipStartColumn + shipSize - shotColumn - 1, true);
+            if (shipStartColumn == shotColumn && (shipStartRow <= shotRow
+                    && shipStartRow + shipSize - 1 >= shotRow)) {
+                ship.setIsTileBombed(shipStartRow + shipSize - shotRow - 1, true);
                 shotWrapper.setIsShotConnected(true);
                 if (processShipAliveState(ship, shipSize)) {
                     shotWrapper.setIsShipDestroyed(true);
@@ -103,7 +103,7 @@ public class ShipsData {
         }
     }
 
-    private ShipType getShipType(Cell startCell, Cell[][] cells, int row, int column) {
+    private ShipType getShipType(Cell[][] cells, Cell startCell, int row, int column) {
         final CellType cellType = startCell.getType();
         ShipType shipType = null;
         int shipSize = 1;
@@ -131,12 +131,13 @@ public class ShipsData {
         return shipType;
     }
 
-    private void addShip(ShipType shipType, int row, int column, boolean isVertical) {
+    private void addShip(int row, int column,
+                         ShipType shipType, ShipDirection direction) {
         if (shipType == null) {
             return;
         }
 
-        ships[getTotalShipsAlive()] = new Ship(shipType, row, column, isVertical);
+        ships[getTotalShipsAlive()] = new Ship(row, column, shipType, direction);
         switch (shipType) {
             case SUBMARINE -> submarinesAlive += 1;
             case CRUISER -> cruisersAlive += 1;
@@ -150,9 +151,9 @@ public class ShipsData {
             for (int column = 0; column < Board.MAX_ROWS; column++) {
                 Cell cell = cells[row][column];
                 if (cell.getShipPresence() == CellShipPresence.PRESENT) {
-                    addShip(getShipType(cell, cells, row, column),
-                            row, column,
-                            (cell.getType() == CellType.UPMOST_VERTICAL)
+                    addShip(row, column,
+                            getShipType(cells, cell, row, column),
+                            ShipDirection.getDirectionFromCellType(cell.getType())
                     );
                 }
             }

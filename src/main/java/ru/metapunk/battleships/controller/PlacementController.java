@@ -16,6 +16,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import ru.metapunk.battleships.model.board.Board;
+import ru.metapunk.battleships.model.ship.ShipDirection;
 import ru.metapunk.battleships.model.ship.ShipType;
 import ru.metapunk.battleships.model.tile.Tile;
 import ru.metapunk.battleships.model.tile.cell.Cell;
@@ -49,7 +50,7 @@ public class PlacementController {
 
     private final Rectangle selectedShipRectangle;
     private ShipType selectedShipType;
-    private boolean isSelectedShipHorizontal;
+    private ShipDirection selectedShipDirection;
 
     public PlacementController(Stage stage, Cell[][] cells) {
         this.stage = stage;
@@ -65,7 +66,7 @@ public class PlacementController {
         this.selectedShipRectangle.visibleProperty().set(false);
         this.selectedShipRectangle.mouseTransparentProperty().set(true);
         this.selectedShipType = null;
-        this.isSelectedShipHorizontal = true;
+        this.selectedShipDirection = ShipDirection.HORIZONTAL;
 
         this.battleshipGridPane = generateShipPane(ShipType.BATTLESHIP);
         this.destroyerGridPane = generateShipPane(ShipType.DESTROYER);
@@ -97,7 +98,7 @@ public class PlacementController {
 
         for (int i = 0; i < shipType.getSize(); i++) {
             Cell cell = new Cell(CellType.findTileType(i,
-                    shipType, isSelectedShipHorizontal),
+                    shipType, selectedShipDirection),
                     CellWarSide.PLAYER, CellShipPresence.PRESENT);
             shipPane.addColumn(i, new Tile(cell));
         }
@@ -120,7 +121,7 @@ public class PlacementController {
         if (event.getButton() == MouseButton.PRIMARY) {
             selectedShipRectangle.visibleProperty().set(false);
         } else if (event.getButton() == MouseButton.SECONDARY) {
-            isSelectedShipHorizontal = !isSelectedShipHorizontal;
+            selectedShipDirection = ShipDirection.flipDirection(selectedShipDirection);
             rotateSelectedShip();
         }
     }
@@ -144,7 +145,7 @@ public class PlacementController {
         selectedShipRectangle.setStroke(Tile.PLAYER_SHIP_TILE_BORDER_COLOR);
         selectedShipRectangle.visibleProperty().set(true);
 
-        isSelectedShipHorizontal = true;
+        selectedShipDirection = ShipDirection.HORIZONTAL;
         event.consume();
     }
 
@@ -167,7 +168,7 @@ public class PlacementController {
 
     private void markAdjustmentTiles(int row, int column) {
         for (int i = -1; i < selectedShipType.getSize() + 1; i++) {
-            if (isSelectedShipHorizontal) {
+            if (selectedShipDirection == ShipDirection.HORIZONTAL) {
                 markTile(getTileFromGrid(row - 1, column + i));
                 markTile(getTileFromGrid(row + 1, column + i));
             } else {
@@ -176,7 +177,7 @@ public class PlacementController {
             }
         }
 
-        if (isSelectedShipHorizontal) {
+        if (selectedShipDirection == ShipDirection.HORIZONTAL) {
             markTile(getTileFromGrid(row, column - 1));
             markTile(getTileFromGrid(row, column + selectedShipType.getSize()));
         } else {
@@ -203,7 +204,7 @@ public class PlacementController {
         Tile[] shipTiles = new Tile[shipSize];
 
         for (int i = 0; i < shipSize; i++) {
-            if (isSelectedShipHorizontal) {
+            if (selectedShipDirection == ShipDirection.HORIZONTAL) {
                 shipTiles[i] = getTileFromGrid(startRow, startColumn + i);
             } else {
                 shipTiles[i] = getTileFromGrid(startRow + i, startColumn);
@@ -218,7 +219,7 @@ public class PlacementController {
         for (int i = 0; i < shipSize; i++) {
             shipTiles[i].getCell().setShipPresence(CellShipPresence.PRESENT);
             shipTiles[i].getCell().setType(CellType.findTileType(i,
-                    selectedShipType, isSelectedShipHorizontal));
+                    selectedShipType, selectedShipDirection));
             shipTiles[i].getCell().setWarSide(CellWarSide.PLAYER);
             shipTiles[i].applyTileStyle();
         }

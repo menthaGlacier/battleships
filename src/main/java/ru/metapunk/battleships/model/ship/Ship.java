@@ -3,20 +3,21 @@ package ru.metapunk.battleships.model.ship;
 import java.io.Serializable;
 
 public class Ship implements Serializable {
-    private final ShipType type;
     private final int startRow;
     private final int startColumn;
-    private final boolean isVertical;
+    private final ShipType type;
+    private final ShipDirection direction;
     private final boolean[] isTileBombed;
     private boolean isAlive;
 
-    public Ship(ShipType type, int startRow, int startColumn, boolean isVertical) {
-        this.type = type;
+    public Ship(int startRow, int startColumn,
+                ShipType type, ShipDirection direction) {
         this.startRow = startRow;
         this.startColumn = startColumn;
-        this.isVertical = isVertical;
-        this.isAlive = true;
+        this.type = type;
+        this.direction = direction;
         this.isTileBombed = new boolean[this.type.getSize()];
+        this.isAlive = true;
 
         for (int i = 0; i < this.type.getSize(); i++) {
             isTileBombed[i] = false;
@@ -35,8 +36,8 @@ public class Ship implements Serializable {
         return startColumn;
     }
 
-    public boolean isIsVertical() {
-        return isVertical;
+    public ShipDirection getDirection() {
+        return direction;
     }
 
     public boolean getIsTileBombed(int index) {
