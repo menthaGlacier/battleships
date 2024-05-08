@@ -18,4 +18,6 @@ module ru.metapunk.battleships {
     opens ru.metapunk.battleships.controller to javafx.fxml;
     exports ru.metapunk.battleships.net.server;
     exports ru.metapunk.battleships.net.client;
+    exports ru.metapunk.battleships.app;
+    opens ru.metapunk.battleships.app to javafx.fxml;
 }

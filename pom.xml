@@ -61,7 +61,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                ru.metapunk.battleships/ru.metapunk.battleships.App
+                                ru.metapunk.battleships/ru.metapunk.battleships.app.App
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
