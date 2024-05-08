@@ -17,9 +17,9 @@ import javafx.stage.Stage;
 import ru.metapunk.battleships.model.board.Board;
 import ru.metapunk.battleships.model.ship.ShipDirection;
 import ru.metapunk.battleships.model.ship.ShipType;
+import ru.metapunk.battleships.model.tile.MarkType;
 import ru.metapunk.battleships.model.tile.Tile;
 import ru.metapunk.battleships.model.tile.cell.Cell;
-import ru.metapunk.battleships.model.tile.cell.CellShipPresence;
 import ru.metapunk.battleships.model.tile.cell.CellType;
 import ru.metapunk.battleships.model.tile.cell.CellWarSide;
 import ru.metapunk.battleships.net.client.Client;
@@ -123,44 +123,6 @@ public class GameController implements IClientGameObserver {
         Platform.runLater(() -> isPlayerTurnProperty.set(true));
     }
 
-    private void markTile(Tile tile) {
-        if (tile != null) {
-            tile.getCell().setShipPresence(CellShipPresence.NEIGHBORING);
-            tile.putDotMark();
-        }
-    }
-
-    private Tile getTileFromGrid(int row, int column) {
-        if (row < 0 || column < 0 ||
-                row >= Board.MAX_ROWS ||
-                column >= Board.MAX_COLUMNS) {
-            return null;
-        }
-
-        return enemyTiles[row][column];
-    }
-
-    private void markAdjustmentTiles(int row, int column,
-                                     ShipType shipType, ShipDirection direction) {
-        for (int i = -1; i < shipType.getSize() + 1; i++) {
-            if (direction == ShipDirection.HORIZONTAL) {
-                markTile(getTileFromGrid(row - 1, column + i));
-                markTile(getTileFromGrid(row + 1, column + i));
-            } else {
-                markTile(getTileFromGrid(row + i, column - 1));
-                markTile(getTileFromGrid(row + i, column + 1));
-            }
-        }
-
-        if (direction == ShipDirection.HORIZONTAL) {
-            markTile(getTileFromGrid(row, column - 1));
-            markTile(getTileFromGrid(row, column + shipType.getSize()));
-        } else {
-            markTile(getTileFromGrid(row - 1, column));
-            markTile(getTileFromGrid(row + shipType.getSize(), column));
-        }
-    }
-
     @Override
     public void onShotEnemyTileResponse(ShotEnemyTileResponseDto data) {
         if (!data.isShotValid()) {
@@ -172,7 +134,7 @@ public class GameController implements IClientGameObserver {
             final Cell cell = tile.getCell();
 
             cell.setBombarded(true);
-            tile.putDotMark();
+            tile.setMark(MarkType.DOT);
 
             if (!data.isShotConnected()) {
                 isPlayerTurnProperty.set(false);
@@ -189,19 +151,20 @@ public class GameController implements IClientGameObserver {
                 final int startColumn = data.destroyedShip().getStartColumn();
 
                 for (int i = 0; i < type.getSize(); i++) {
-                    if (direction == ShipDirection.VERTICAL) {
+                    if (direction == ShipDirection.HORIZONTAL) {
                         cell.setType(CellType.findCellType(i, type, direction));
-                        enemyTiles[startRow + i][startColumn].putXMark();
+                        enemyTiles[startRow][startColumn + i].setMark(MarkType.X);
                         cell.setWarSide(CellWarSide.ENEMY);
                         tile.applyTileStyle();
                     } else {
                         cell.setType(CellType.findCellType(i, type, direction));
-                        enemyTiles[startRow][startColumn + i].putXMark();
+                        enemyTiles[startRow + i][startColumn].setMark(MarkType.X);
                         cell.setWarSide(CellWarSide.ENEMY);
                         tile.applyTileStyle();
                     }
 
-                    markAdjustmentTiles(startRow, startColumn, type, direction);
+                    Board.markAdjustmentTiles(enemyTiles, MarkType.DOT,
+                            startRow, startColumn, direction, type.getSize());
                 }
             }
         });
@@ -211,7 +174,7 @@ public class GameController implements IClientGameObserver {
     public void onEnemyShot(EnemyShotDto data) {
         Platform.runLater(() -> {
             if (data.destroyedShip() == null) {
-                playerTiles[data.row()][data.column()].putDotMark();
+                playerTiles[data.row()][data.column()].setMark(MarkType.DOT);
                 return;
             }
 
@@ -221,10 +184,9 @@ public class GameController implements IClientGameObserver {
 
             for (int i = 0; i < shipType.getSize(); i++) {
                 if (data.destroyedShip().getDirection() == ShipDirection.HORIZONTAL) {
-                    playerTiles[startRow][startColumn + i].putXMark();
+                    playerTiles[startRow][startColumn + i].setMark(MarkType.X);
                 } else {
-                    playerTiles[startRow + i][startColumn].putXMark();
-
+                    playerTiles[startRow + i][startColumn].setMark(MarkType.X);
                 }
             }
         });

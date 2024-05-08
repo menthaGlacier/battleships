@@ -4,6 +4,5 @@ import java.io.Serializable;
 
 public enum CellShipPresence implements Serializable {
     ABSENT,
-    NEIGHBORING,
     PRESENT
 }

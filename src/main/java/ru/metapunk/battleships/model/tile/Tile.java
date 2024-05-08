@@ -21,24 +21,30 @@ public class Tile extends StackPane {
     public static final Color ENEMY_SHIP_TILE_BORDER_COLOR = Color.rgb(220, 14, 14);
     public static final int TILE_SIZE = 50;
 
-    private final Pane tile;
+    private final Pane tilePane;
     private final Cell cell;
+    private MarkType markType;
 
     public Tile() {
         this(new Cell());
     }
 
     public Tile(Cell cell) {
-        this.tile = new Pane();
+        this.tilePane = new Pane();
         this.cell = cell;
+        this.markType = MarkType.NONE;
 
-        this.tile.setPrefSize(TILE_SIZE, TILE_SIZE);
+        this.tilePane.setPrefSize(TILE_SIZE, TILE_SIZE);
         this.applyTileStyle();
-        this.getChildren().add(tile);
+        this.getChildren().add(tilePane);
     }
 
     public Cell getCell() {
         return cell;
+    }
+
+    private void setMarkType(MarkType markType) {
+        this.markType = markType;
     }
 
     private String colorToRgbaString(Color color) {
@@ -102,11 +108,11 @@ public class Tile extends StackPane {
         String fillColorStyle = this.getBackgroundColorStyle();
         String borderColorStyle = this.getBorderColorStyle();
 
-        tile.setStyle(fillColorStyle + " " + borderColorStyle);
+        tilePane.setStyle(fillColorStyle + " " + borderColorStyle);
     }
 
-    public void putDotMark() {
-        final Circle circle = new Circle(3);
+    private void putDotMark() {
+        final Circle circle = new Circle(4);
 
         if (cell.getWarSide() == CellWarSide.ENEMY) {
             circle.setFill(ENEMY_SHIP_TILE_BORDER_COLOR);
@@ -117,7 +123,11 @@ public class Tile extends StackPane {
         this.getChildren().add(circle);
     }
 
-    public void putXMark() {
+    private void removeDotMark() {
+        this.getChildren().removeIf(node -> node instanceof Circle);
+    }
+
+    private void putXMark() {
         final Line first = new Line(0, 0, TILE_SIZE * 0.7, TILE_SIZE * 0.7);
         final Line second = new Line(0, TILE_SIZE * 0.7, TILE_SIZE * 0.7, 0);
 
@@ -134,5 +144,24 @@ public class Tile extends StackPane {
 
         this.getChildren().add(first);
         this.getChildren().add(second);
+    }
+
+    private void removeXMark() {
+        this.getChildren().removeIf(node -> node instanceof Line);
+    }
+
+    public MarkType getMarkType() {
+        return markType;
+    }
+
+    public void setMark(MarkType markType) {
+        this.setMarkType(markType);
+        if (markType == MarkType.DOT) {
+            removeXMark();
+            putDotMark();
+        } else if (markType == MarkType.X) {
+            removeDotMark();
+            putXMark();
+        }
     }
 }

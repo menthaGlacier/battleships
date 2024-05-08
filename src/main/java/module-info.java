@@ -6,6 +6,7 @@ module ru.metapunk.battleships {
     opens ru.metapunk.battleships to javafx.fxml;
     exports ru.metapunk.battleships;
     exports ru.metapunk.battleships.observer;
+    exports ru.metapunk.battleships.model.tile;
     exports ru.metapunk.battleships.model.ship;
     exports ru.metapunk.battleships.net.dto;
     exports ru.metapunk.battleships.net.dto.signal;

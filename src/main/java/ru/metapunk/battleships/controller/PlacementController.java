@@ -18,6 +18,7 @@ import javafx.stage.Stage;
 import ru.metapunk.battleships.model.board.Board;
 import ru.metapunk.battleships.model.ship.ShipDirection;
 import ru.metapunk.battleships.model.ship.ShipType;
+import ru.metapunk.battleships.model.tile.MarkType;
 import ru.metapunk.battleships.model.tile.Tile;
 import ru.metapunk.battleships.model.tile.cell.Cell;
 import ru.metapunk.battleships.model.tile.cell.CellShipPresence;
@@ -149,43 +150,6 @@ public class PlacementController {
         event.consume();
     }
 
-    private void markTile(Tile tile) {
-        if (tile != null) {
-            tile.getCell().setShipPresence(CellShipPresence.NEIGHBORING);
-            tile.putXMark();
-        }
-    }
-
-    private Tile getTileFromGrid(int row, int column) {
-        if (row < 0 || column < 0 ||
-                row >= Board.MAX_ROWS ||
-                column >= Board.MAX_COLUMNS) {
-            return null;
-        }
-
-        return tiles[row][column];
-    }
-
-    private void markAdjustmentTiles(int row, int column) {
-        for (int i = -1; i < selectedShipType.getSize() + 1; i++) {
-            if (selectedShipDirection == ShipDirection.HORIZONTAL) {
-                markTile(getTileFromGrid(row - 1, column + i));
-                markTile(getTileFromGrid(row + 1, column + i));
-            } else {
-                markTile(getTileFromGrid(row + i, column - 1));
-                markTile(getTileFromGrid(row + i, column + 1));
-            }
-        }
-
-        if (selectedShipDirection == ShipDirection.HORIZONTAL) {
-            markTile(getTileFromGrid(row, column - 1));
-            markTile(getTileFromGrid(row, column + selectedShipType.getSize()));
-        } else {
-            markTile(getTileFromGrid(row - 1, column));
-            markTile(getTileFromGrid(row + selectedShipType.getSize(), column));
-        }
-    }
-
     private void handleTileClick(MouseEvent e, Tile tile) {
         if (e.getButton() == MouseButton.SECONDARY ||
                 !selectedShipRectangle.isVisible() ||
@@ -202,9 +166,9 @@ public class PlacementController {
 
         for (int i = 0; i < shipSize; i++) {
             if (selectedShipDirection == ShipDirection.HORIZONTAL) {
-                shipTiles[i] = getTileFromGrid(startRow, startColumn + i);
+                shipTiles[i] = Board.getTile(tiles, startRow, startColumn + i);
             } else {
-                shipTiles[i] = getTileFromGrid(startRow + i, startColumn);
+                shipTiles[i] = Board.getTile(tiles, startRow + i, startColumn);
             }
 
             if (shipTiles[i] == null ||
@@ -228,7 +192,8 @@ public class PlacementController {
             case SUBMARINE -> submarinesAvailable.set(submarinesAvailable.get() - 1);
         }
 
-        markAdjustmentTiles(startRow, startColumn);
+        Board.markAdjustmentTiles(tiles, MarkType.X, startRow, startColumn,
+                selectedShipDirection, selectedShipType.getSize());
     }
 
     private void rotateSelectedShip() {
@@ -236,8 +201,11 @@ public class PlacementController {
             return;
         }
 
-        selectedShipRectangle.setWidth(selectedShipRectangle.getHeight());
-        selectedShipRectangle.setHeight(selectedShipRectangle.getWidth());
+        final double oldWidth = selectedShipRectangle.getWidth();
+        final double oldHeight = selectedShipRectangle.getHeight();
+
+        selectedShipRectangle.setWidth(oldHeight);
+        selectedShipRectangle.setHeight(oldWidth);
     }
 
     @FXML
