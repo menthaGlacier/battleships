@@ -192,7 +192,7 @@ public class PlacementController {
             case SUBMARINE -> submarinesAvailable.set(submarinesAvailable.get() - 1);
         }
 
-        Board.markAdjustmentTiles(tiles, MarkType.X, startRow, startColumn,
+        Board.markNeighboringTiles(tiles, MarkType.X, startRow, startColumn,
                 selectedShipDirection, selectedShipType.getSize());
     }
 

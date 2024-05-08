@@ -4,6 +4,7 @@ import javafx.scene.layout.GridPane;
 import ru.metapunk.battleships.model.ship.ShipDirection;
 import ru.metapunk.battleships.model.tile.MarkType;
 import ru.metapunk.battleships.model.tile.Tile;
+import ru.metapunk.battleships.model.tile.cell.CellShipPresence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +22,9 @@ public class Board extends GridPane {
         return tiles[row][column];
     }
 
-    public static void markAdjustmentTiles(Tile[][] tiles, MarkType markType,
-                                           int row, int column,
-                                           ShipDirection direction, int size) {
+    public static void markNeighboringTiles(Tile[][] tiles, MarkType markType,
+                                            int row, int column,
+                                            ShipDirection direction, int size) {
         List<Tile> tilesToMark = new ArrayList<>();
 
         for (int i = -1; i < size + 1; i++) {
@@ -47,10 +48,9 @@ public class Board extends GridPane {
 
         tilesToMark.stream()
                 .filter(Objects::nonNull)
-                .forEach(tile -> tile.setMark(markType));
-    }
-
-    public void clear() {
-        this.getChildren().clear();
+                .forEach(tile -> {
+                    tile.setMark(markType);
+                    tile.getCell().setShipPresence(CellShipPresence.NEIGHBORING);
+                });
     }
 }

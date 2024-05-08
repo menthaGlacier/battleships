@@ -163,7 +163,7 @@ public class GameController implements IClientGameObserver {
                         tile.applyTileStyle();
                     }
 
-                    Board.markAdjustmentTiles(enemyTiles, MarkType.DOT,
+                    Board.markNeighboringTiles(enemyTiles, MarkType.DOT,
                             startRow, startColumn, direction, type.getSize());
                 }
             }
