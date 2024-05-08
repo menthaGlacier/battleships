@@ -1,5 +1,6 @@
 package ru.metapunk.battleships.net.server;
 
+import ru.metapunk.battleships.net.dto.signal.PlayerSurrenderedSignalDto;
 import ru.metapunk.battleships.net.game.Player;
 import ru.metapunk.battleships.net.dto.PlayerBoardSetupDto;
 import ru.metapunk.battleships.net.dto.request.*;
@@ -56,6 +57,10 @@ public class ClientHandler implements Runnable {
                     server.handleWhoseTurnRequest(this,
                             ((WhoseTurnRequestDto) dto).gameId(),
                             ((WhoseTurnRequestDto) dto).playerId());
+                }  else if (dto instanceof PlayerSurrenderedSignalDto) {
+                    server.handlePlayerSurrendered(this,
+                            ((PlayerSurrenderedSignalDto) dto).gameId(),
+                            ((PlayerSurrenderedSignalDto) dto).playerId());
                 } else if (dto instanceof ShotEnemyTileRequestDto) {
                     server.handleShotEnemyTile(this,
                             ((ShotEnemyTileRequestDto) dto).gameId(),

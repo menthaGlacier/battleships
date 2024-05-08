@@ -146,7 +146,38 @@ public class Server {
         client.sendDto(new WhoseTurnResponseDto(false));
     }
 
-    private void makeShot(ClientHandler client, String gameId, Game game,
+    private void processGameFinish(ClientHandler winner, ClientHandler loser,
+                                   String gameId) {
+        winner.sendDto(new GameFinishedSignalDto(true));
+        loser.sendDto(new GameFinishedSignalDto(false));
+        synchronized (games) {
+            games.remove(gameId);
+        }
+    }
+
+    public void handlePlayerSurrendered(ClientHandler client,
+                                        String gameId, String playerId) {
+        Game game;
+        synchronized (games) {
+            game = games.get(gameId);
+            if (game == null) {
+                return;
+            }
+        }
+
+        ClientHandler otherPlayerClient;
+        if (game.getPlayerOne().getId().equals(playerId)) {
+            otherPlayerClient = game.getPlayerTwo().getClientHandler();
+        } else if (game.getPlayerTwo().getId().equals(playerId)) {
+            otherPlayerClient = game.getPlayerOne().getClientHandler();
+        } else {
+            return;
+        }
+
+        processGameFinish(otherPlayerClient, client, gameId);
+    }
+
+    private void makeShot(ClientHandler client, Game game, String gameId,
                           String playerId, int row, int column) {
         final ShotWrapper shotWrapper = new ShotWrapper();
 
@@ -195,13 +226,8 @@ public class Server {
         }
 
         if (otherPlayerShipsData.getTotalShipsAlive() == 0) {
-            client.sendDto(new GameFinishedSignalDto(true));
-            otherPlayerClient.sendDto(new GameFinishedSignalDto(false));
-            synchronized (games) {
-                games.remove(gameId, game);
-            }
+            processGameFinish(client, otherPlayerClient, gameId);
         }
-
     }
 
     public void handleShotEnemyTile(ClientHandler client, String gameId,
@@ -215,7 +241,7 @@ public class Server {
         }
 
         synchronized (game) {
-            makeShot(client, gameId, game, playerId, row, column);
+            makeShot(client, game, gameId, playerId, row, column);
         }
     }
 }

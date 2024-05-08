@@ -13,7 +13,7 @@
          <Font size="30.0" />
       </font>
    </Label>
-   <Button mnemonicParsing="false" layoutX="560.0" layoutY="620.0" prefWidth="160.0" text="Surrender">
+   <Button onAction="#onSurrenderButtonClick" mnemonicParsing="false" layoutX="560.0" layoutY="620.0" prefWidth="160.0" text="Surrender">
       <font>
          <Font size="20.0" />
       </font>

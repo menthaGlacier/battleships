@@ -29,6 +29,7 @@ import ru.metapunk.battleships.net.dto.request.WhoseTurnRequestDto;
 import ru.metapunk.battleships.net.dto.response.ShotEnemyTileResponseDto;
 import ru.metapunk.battleships.net.dto.response.WhoseTurnResponseDto;
 import ru.metapunk.battleships.net.dto.signal.GameFinishedSignalDto;
+import ru.metapunk.battleships.net.dto.signal.PlayerSurrenderedSignalDto;
 import ru.metapunk.battleships.observer.IClientGameObserver;
 
 import java.io.IOException;
@@ -96,6 +97,11 @@ public class GameController implements IClientGameObserver {
                 playerBoard.add(playerTile, column, row);
             }
         }
+    }
+
+    @FXML
+    private void onSurrenderButtonClick() {
+        client.sendDto(new PlayerSurrenderedSignalDto(gameId, client.getClientId()));
     }
 
     @FXML
