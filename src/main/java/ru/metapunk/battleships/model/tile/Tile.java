@@ -106,20 +106,20 @@ public class Tile extends StackPane {
     }
 
     public void putDotMark() {
-        Circle circle;
+        final Circle circle = new Circle(3);
 
         if (cell.getWarSide() == CellWarSide.ENEMY) {
-            circle = new Circle(2.5, ENEMY_SHIP_TILE_BORDER_COLOR);
+            circle.setFill(ENEMY_SHIP_TILE_BORDER_COLOR);
         } else {
-            circle = new Circle(2.5, NEUTRAL_TILE_BORDER_COLOR);
+            circle.setFill(NEUTRAL_TILE_BORDER_COLOR);
         }
 
         this.getChildren().add(circle);
     }
 
     public void putXMark() {
-        Line first = new Line(0, 0, TILE_SIZE * 0.7, TILE_SIZE * 0.7);
-        Line second = new Line(0, TILE_SIZE * 0.7, TILE_SIZE * 0.7, 0);
+        final Line first = new Line(0, 0, TILE_SIZE * 0.7, TILE_SIZE * 0.7);
+        final Line second = new Line(0, TILE_SIZE * 0.7, TILE_SIZE * 0.7, 0);
 
         first.setStrokeWidth(2);
         second.setStrokeWidth(2);

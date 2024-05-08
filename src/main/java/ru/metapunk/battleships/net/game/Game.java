@@ -1,4 +1,4 @@
-package ru.metapunk.battleships.net;
+package ru.metapunk.battleships.net.game;
 
 import ru.metapunk.battleships.model.ship.ShipsData;
 import ru.metapunk.battleships.model.tile.cell.Cell;
@@ -7,8 +7,8 @@ public class Game {
     private final String gameId;
     private final Player playerOne;
     private final Player playerTwo;
-    private Cell[][] playerOneBoard = null;
-    private Cell[][] playerTwoBoard = null;
+    private Cell[][] playerOneBoard;
+    private Cell[][] playerTwoBoard;
     private ShipsData playerOneShipsData;
     private ShipsData playerTwoShipsData;
     private WhoseTurn whoseTurn;
@@ -17,6 +17,8 @@ public class Game {
         this.gameId = gameId;
         this.playerOne = playerOne;
         this.playerTwo = playerTwo;
+        this.playerOneBoard = null;
+        this.playerTwoBoard = null;
         this.whoseTurn = WhoseTurn.getRandomPlayerTurn();
     }
 

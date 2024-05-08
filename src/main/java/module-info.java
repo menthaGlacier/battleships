@@ -5,7 +5,6 @@ module ru.metapunk.battleships {
 
     opens ru.metapunk.battleships to javafx.fxml;
     exports ru.metapunk.battleships;
-    exports ru.metapunk.battleships.net;
     exports ru.metapunk.battleships.observer;
     exports ru.metapunk.battleships.model.ship;
     exports ru.metapunk.battleships.net.dto;
@@ -20,4 +19,5 @@ module ru.metapunk.battleships {
     exports ru.metapunk.battleships.net.client;
     exports ru.metapunk.battleships.app;
     opens ru.metapunk.battleships.app to javafx.fxml;
+    exports ru.metapunk.battleships.net.game;
 }

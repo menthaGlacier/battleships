@@ -63,8 +63,8 @@ public class GameController implements IClientGameObserver {
     }
 
     private void changeToMainScene() {
-        Stage stage = (Stage) root.getScene().getWindow();
-        FXMLLoader loader = new FXMLLoader((getClass()
+        final Stage stage = (Stage) root.getScene().getWindow();
+        final FXMLLoader loader = new FXMLLoader((getClass()
                 .getResource("/ru/metapunk/battleships/fxml/main-view.fxml")));
         loader.setControllerFactory(controllerClass ->
                 new MainController(client));
@@ -84,17 +84,14 @@ public class GameController implements IClientGameObserver {
             return;
         }
 
-        final int row = GridPane.getRowIndex(tile);
-        final int column = GridPane.getColumnIndex(tile);
-
-        client.sendDto(new ShotEnemyTileRequestDto(
-                gameId, client.getClientId(), row, column));
+        client.sendDto(new ShotEnemyTileRequestDto(gameId, client.getClientId(),
+                GridPane.getRowIndex(tile), GridPane.getColumnIndex(tile)));
     }
 
     public void setPlayerShips(Cell[][] playerCells) {
         for (int row = 0; row < Board.MAX_ROWS; row++) {
             for (int column = 0; column < Board.MAX_COLUMNS; column++) {
-                Tile playerTile = new Tile(playerCells[row][column]);
+                final Tile playerTile = new Tile(playerCells[row][column]);
                 playerTiles[row][column] = playerTile;
                 playerBoard.add(playerTile, column, row);
             }
@@ -105,7 +102,7 @@ public class GameController implements IClientGameObserver {
     public void initialize() {
         for (int row = 0; row < Board.MAX_ROWS; row++) {
             for (int column = 0; column < Board.MAX_COLUMNS; column++) {
-                Tile enemyTile = new Tile();
+                final Tile enemyTile = new Tile();
                 enemyTile.setOnMouseClicked(e -> handleEnemyTileClick(e, enemyTile));
                 enemyTiles[row][column] = enemyTile;
                 enemyBoard.add(enemyTile, column, row);
@@ -218,7 +215,7 @@ public class GameController implements IClientGameObserver {
                 return;
             }
 
-            ShipType shipType = data.destroyedShip().getType();
+            final ShipType shipType = data.destroyedShip().getType();
             final int startRow = data.destroyedShip().getStartRow();
             final int startColumn = data.destroyedShip().getStartColumn();
 
@@ -237,7 +234,7 @@ public class GameController implements IClientGameObserver {
     public void onGameFinished(GameFinishedSignalDto dto) {
         Platform.runLater(() -> {
             final Stage dialog = new Stage();
-            FXMLLoader loader = new FXMLLoader((getClass()
+            final FXMLLoader loader = new FXMLLoader((getClass()
                     .getResource("/ru/metapunk/battleships/fxml/game-finished-view.fxml")));
             loader.setControllerFactory(controllerClass ->
                     new GameFinishedController(dialog, dto.hasPlayerWon()));

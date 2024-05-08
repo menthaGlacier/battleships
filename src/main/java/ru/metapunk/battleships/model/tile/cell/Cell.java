@@ -19,10 +19,6 @@ public class Cell implements Serializable {
         this.bombarded = false;
     }
 
-    public Cell(CellWarSide warSide) {
-        this(CellType.SINGULAR, warSide, CellShipPresence.ABSENT);
-    }
-
     public CellType getType() {
         return type;
     }

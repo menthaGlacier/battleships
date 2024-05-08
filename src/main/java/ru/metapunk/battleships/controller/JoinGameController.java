@@ -12,7 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import ru.metapunk.battleships.net.client.Client;
-import ru.metapunk.battleships.net.Lobby;
+import ru.metapunk.battleships.net.game.Lobby;
 import ru.metapunk.battleships.net.dto.request.JoinLobbyRequestDto;
 import ru.metapunk.battleships.net.dto.request.OpenLobbiesRequestDto;
 import ru.metapunk.battleships.net.dto.response.JoinLobbyResponseDto;
@@ -45,7 +45,7 @@ public class JoinGameController implements IClientJoinGameObserver {
         lobbyListView.getItems().clear();
 
         if (lobbies.isEmpty()) {
-            Label noLobbiesAvailable = new Label("No lobbies available :(");
+            final Label noLobbiesAvailable = new Label("No lobbies available :(");
             noLobbiesAvailable.setFont(new Font(26));
             HBox noLobbiesBox = new HBox(noLobbiesAvailable);
             lobbyListView.getItems().add(noLobbiesBox);
@@ -53,15 +53,15 @@ public class JoinGameController implements IClientJoinGameObserver {
         }
 
         for (Lobby lobby : lobbies) {
-            Label lobbyLabel = new Label(lobby.getHost().getNickname());
+            final Label lobbyLabel = new Label(lobby.getHost().getNickname());
             lobbyLabel.setFont(new Font(26));
 
-            Button joinButton = new Button("Join");
+            final Button joinButton = new Button("Join");
             joinButton.setFont(new Font(18));
             joinButton.setPrefWidth(100);
             joinButton.setOnAction(e -> onJoinButtonClick(lobby.getLobbyId()));
 
-            HBox lobbyBox = new HBox(lobbyLabel, joinButton);
+            final HBox lobbyBox = new HBox(lobbyLabel, joinButton);
             lobbyBox.setSpacing(100);
             lobbyBox.setAlignment(Pos.CENTER);
             lobbyListView.getItems().add(lobbyBox);

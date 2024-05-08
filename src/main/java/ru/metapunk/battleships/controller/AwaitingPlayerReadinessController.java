@@ -7,13 +7,10 @@ import ru.metapunk.battleships.observer.IClientGameAwaitingObserver;
 
 public class AwaitingPlayerReadinessController implements IClientGameAwaitingObserver {
     private final Stage stage;
-    private final Client client;
 
     public AwaitingPlayerReadinessController(Stage stage, Client client) {
         this.stage = stage;
-        this.client = client;
-
-        this.client.setEventsObserver(this);
+        client.setEventsObserver(this);
     }
 
     @Override

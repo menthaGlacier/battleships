@@ -17,9 +17,9 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader loader = new FXMLLoader((getClass()
+        final FXMLLoader loader = new FXMLLoader((getClass()
                 .getResource("/ru/metapunk/battleships/fxml/main-view.fxml")));
-        Scene scene = new Scene(loader.load(), WINDOW_WIDTH, WINDOW_HEIGHT);
+        final Scene scene = new Scene(loader.load(), WINDOW_WIDTH, WINDOW_HEIGHT);
         stage.setTitle("Battleships");
         stage.setResizable(false);
         stage.setScene(scene);

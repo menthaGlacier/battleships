@@ -4,7 +4,7 @@ import ru.metapunk.battleships.model.board.Board;
 import ru.metapunk.battleships.model.tile.cell.Cell;
 import ru.metapunk.battleships.model.tile.cell.CellShipPresence;
 import ru.metapunk.battleships.model.tile.cell.CellType;
-import ru.metapunk.battleships.net.ShotWrapper;
+import ru.metapunk.battleships.net.game.ShotWrapper;
 
 public class ShipsData {
     private final Ship[] ships;

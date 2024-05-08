@@ -1,4 +1,4 @@
-package ru.metapunk.battleships.net;
+package ru.metapunk.battleships.net.game;
 
 import ru.metapunk.battleships.model.ship.Ship;
 

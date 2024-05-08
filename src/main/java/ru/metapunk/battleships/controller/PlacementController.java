@@ -84,7 +84,7 @@ public class PlacementController {
     }
 
     private Label generateShipLabel(IntegerProperty shipsAvailable) {
-        Label shipLabel = new Label();
+        final Label shipLabel = new Label();
         shipLabel.setFont(new Font(22));
         shipLabel.setAlignment(Pos.CENTER);
         shipLabel.setPrefSize(Tile.TILE_SIZE, Tile.TILE_SIZE);
@@ -94,7 +94,7 @@ public class PlacementController {
     }
 
     private GridPane generateShipPane(ShipType shipType) {
-        GridPane shipPane = new GridPane();
+        final GridPane shipPane = new GridPane();
 
         for (int i = 0; i < shipType.getSize(); i++) {
             Cell cell = new Cell(CellType.findCellType(i,
@@ -193,15 +193,12 @@ public class PlacementController {
             return;
         }
 
-        int row = GridPane.getRowIndex(tile);
-        int column = GridPane.getColumnIndex(tile);
-
-        placeShip(row, column);
+        placeShip(GridPane.getRowIndex(tile), GridPane.getColumnIndex(tile));
     }
 
     private void placeShip(int startRow, int startColumn) {
-        int shipSize = selectedShipType.getSize();
-        Tile[] shipTiles = new Tile[shipSize];
+        final int shipSize = selectedShipType.getSize();
+        final Tile[] shipTiles = new Tile[shipSize];
 
         for (int i = 0; i < shipSize; i++) {
             if (selectedShipDirection == ShipDirection.HORIZONTAL) {
@@ -239,11 +236,8 @@ public class PlacementController {
             return;
         }
 
-        double oldWidth = selectedShipRectangle.getWidth();
-        double oldHeight = selectedShipRectangle.getHeight();
-
-        selectedShipRectangle.setWidth(oldHeight);
-        selectedShipRectangle.setHeight(oldWidth);
+        selectedShipRectangle.setWidth(selectedShipRectangle.getHeight());
+        selectedShipRectangle.setHeight(selectedShipRectangle.getWidth());
     }
 
     @FXML
@@ -252,7 +246,7 @@ public class PlacementController {
 
         for (int row = 0; row < Board.MAX_ROWS; row++) {
             for (int column = 0; column < Board.MAX_COLUMNS; column++) {
-                Tile tile = new Tile();
+                final Tile tile = new Tile();
 
                 tile.setOnMouseClicked(e -> handleTileClick(e, tile));
                 tiles[row][column] = tile;
@@ -281,7 +275,7 @@ public class PlacementController {
     public void initialize() {
         for (int row = 0; row < Board.MAX_ROWS; row++) {
             for (int column = 0; column < Board.MAX_COLUMNS; column++) {
-                Tile tile = new Tile();
+                final Tile tile = new Tile();
 
                 tile.setOnMouseClicked(e -> handleTileClick(e, tile));
                 tiles[row][column] = tile;

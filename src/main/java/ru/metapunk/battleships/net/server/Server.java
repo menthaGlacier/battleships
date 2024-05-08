@@ -2,13 +2,13 @@ package ru.metapunk.battleships.net.server;
 
 import ru.metapunk.battleships.model.ship.ShipsData;
 import ru.metapunk.battleships.model.tile.cell.Cell;
-import ru.metapunk.battleships.net.*;
 import ru.metapunk.battleships.net.dto.EnemyShotDto;
 import ru.metapunk.battleships.net.dto.response.*;
 import ru.metapunk.battleships.net.dto.signal.GameFinishedSignalDto;
 import ru.metapunk.battleships.net.dto.signal.OtherPlayerJoinedSignalDto;
 import ru.metapunk.battleships.net.dto.signal.OtherPlayerReadySignalDto;
 import ru.metapunk.battleships.net.dto.signal.PassedTurnSignalDto;
+import ru.metapunk.battleships.net.game.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

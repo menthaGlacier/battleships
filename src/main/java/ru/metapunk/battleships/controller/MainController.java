@@ -99,8 +99,8 @@ public class MainController implements IClientMainObserver {
     }
 
     private void changeToGameScene(String gameId, Cell[][] cells) {
-        Stage stage = (Stage) root.getScene().getWindow();
-        FXMLLoader loader = new FXMLLoader((getClass()
+        final Stage stage = (Stage) root.getScene().getWindow();
+        final FXMLLoader loader = new FXMLLoader((getClass()
                 .getResource("/ru/metapunk/battleships/fxml/game-view.fxml")));
         loader.setControllerFactory(controllerClass ->
                 new GameController(client, gameId, cells));
@@ -116,7 +116,7 @@ public class MainController implements IClientMainObserver {
 
     private void callShipPlacementDialog(Cell[][] cells) {
         final Stage dialog = new Stage();
-        FXMLLoader loader = new FXMLLoader((getClass()
+        final FXMLLoader loader = new FXMLLoader((getClass()
                 .getResource("/ru/metapunk/battleships/fxml/placement-view.fxml")));
         loader.setControllerFactory(controllerClass ->
                 new PlacementController(dialog, cells));
@@ -138,7 +138,7 @@ public class MainController implements IClientMainObserver {
 
     private void callAwaitingPlayerReadinessWindow() {
         final Stage dialog = new Stage();
-        FXMLLoader loader = new FXMLLoader((getClass()
+        final FXMLLoader loader = new FXMLLoader((getClass()
                 .getResource("/ru/metapunk/battleships/fxml/awaiting-player-readiness-view.fxml")));
         loader.setControllerFactory(controllerClass ->
                 new AwaitingPlayerReadinessController(dialog, client));
@@ -163,7 +163,7 @@ public class MainController implements IClientMainObserver {
         final StringProperty joinedGameIdProperty = new SimpleStringProperty("None");
         Platform.runLater(() -> {
             final Stage dialog = new Stage();
-            FXMLLoader loader = new FXMLLoader(getClass()
+            final FXMLLoader loader = new FXMLLoader(getClass()
                     .getResource("/ru/metapunk/battleships/fxml/awaiting-player-joining-view.fxml"));
             loader.setControllerFactory(controllerClass ->
                     new AwaitingPlayerJoiningController(dialog, client,

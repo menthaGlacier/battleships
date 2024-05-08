@@ -1,4 +1,4 @@
-package ru.metapunk.battleships.net;
+package ru.metapunk.battleships.net.game;
 
 import java.io.Serializable;
 import java.util.concurrent.ThreadLocalRandom;
@@ -9,7 +9,8 @@ public enum WhoseTurn implements Serializable {
     PLAYER_TWO;
 
     public static WhoseTurn getRandomPlayerTurn() {
-        WhoseTurn[] values = WhoseTurn.values();
-        return values[ThreadLocalRandom.current().nextInt(1, values.length)];
+        final WhoseTurn[] values = WhoseTurn.values();
+        return values[ThreadLocalRandom
+                .current().nextInt(1, values.length)];
     }
 }

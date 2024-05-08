@@ -10,16 +10,14 @@ import ru.metapunk.battleships.observer.IClientLobbyAwaitingObserver;
 
 public class AwaitingPlayerJoiningController implements IClientLobbyAwaitingObserver {
     private final Stage stage;
-    private final Client client;
     private final StringProperty joinedGameIdProperty;
 
     public AwaitingPlayerJoiningController(Stage stage, Client client,
                                            StringProperty joinedGameIdProperty) {
         this.stage = stage;
-        this.client = client;
         this.joinedGameIdProperty = joinedGameIdProperty;
 
-        this.client.setEventsObserver(this);
+        client.setEventsObserver(this);
     }
 
     @FXML
