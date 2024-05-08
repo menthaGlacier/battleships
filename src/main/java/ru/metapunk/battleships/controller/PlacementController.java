@@ -210,15 +210,9 @@ public class PlacementController {
 
     @FXML
     private void handleClearButtonClick() {
-        board.clear();
-
         for (int row = 0; row < Board.MAX_ROWS; row++) {
             for (int column = 0; column < Board.MAX_COLUMNS; column++) {
-                final Tile tile = new Tile();
-
-                tile.setOnMouseClicked(e -> handleTileClick(e, tile));
-                tiles[row][column] = tile;
-                board.add(tile, column, row);
+                tiles[row][column].clear();
             }
         }
 

@@ -7,6 +7,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import ru.metapunk.battleships.model.tile.cell.Cell;
 import ru.metapunk.battleships.model.tile.cell.CellShipPresence;
+import ru.metapunk.battleships.model.tile.cell.CellType;
 import ru.metapunk.battleships.model.tile.cell.CellWarSide;
 
 import java.text.NumberFormat;
@@ -39,12 +40,74 @@ public class Tile extends StackPane {
         this.getChildren().add(tilePane);
     }
 
+    public void clear() {
+        cell.setType(CellType.SINGULAR);
+        cell.setWarSide(CellWarSide.NEUTRAL);
+        cell.setShipPresence(CellShipPresence.ABSENT);
+        getChildren().removeIf(node -> node != tilePane);
+        applyTileStyle();
+    }
+
     public Cell getCell() {
         return cell;
     }
 
     private void setMarkType(MarkType markType) {
         this.markType = markType;
+    }
+
+    private void putDotMark() {
+        final Circle circle = new Circle(4);
+
+        if (cell.getWarSide() == CellWarSide.ENEMY) {
+            circle.setFill(ENEMY_SHIP_TILE_BORDER_COLOR);
+        } else {
+            circle.setFill(NEUTRAL_TILE_BORDER_COLOR);
+        }
+
+        getChildren().add(circle);
+    }
+
+    private void removeDotMark() {
+        getChildren().removeIf(node -> node instanceof Circle);
+    }
+
+    private void putXMark() {
+        final Line first = new Line(0, 0, TILE_SIZE * 0.7, TILE_SIZE * 0.7);
+        final Line second = new Line(0, TILE_SIZE * 0.7, TILE_SIZE * 0.7, 0);
+
+        first.setStrokeWidth(2);
+        second.setStrokeWidth(2);
+
+        if (cell.getWarSide() == CellWarSide.ENEMY) {
+            first.setStroke(ENEMY_SHIP_TILE_BORDER_COLOR);
+            second.setStroke(ENEMY_SHIP_TILE_BORDER_COLOR);
+        } else {
+            first.setStroke(NEUTRAL_TILE_BORDER_COLOR);
+            second.setStroke(NEUTRAL_TILE_BORDER_COLOR);
+        }
+
+        getChildren().add(first);
+        getChildren().add(second);
+    }
+
+    private void removeXMark() {
+        getChildren().removeIf(node -> node instanceof Line);
+    }
+
+    public MarkType getMarkType() {
+        return markType;
+    }
+
+    public void setMark(MarkType markType) {
+        this.setMarkType(markType);
+        if (markType == MarkType.DOT) {
+            removeXMark();
+            putDotMark();
+        } else if (markType == MarkType.X) {
+            removeDotMark();
+            putXMark();
+        }
     }
 
     private String colorToRgbaString(Color color) {
@@ -109,59 +172,5 @@ public class Tile extends StackPane {
         String borderColorStyle = this.getBorderColorStyle();
 
         tilePane.setStyle(fillColorStyle + " " + borderColorStyle);
-    }
-
-    private void putDotMark() {
-        final Circle circle = new Circle(4);
-
-        if (cell.getWarSide() == CellWarSide.ENEMY) {
-            circle.setFill(ENEMY_SHIP_TILE_BORDER_COLOR);
-        } else {
-            circle.setFill(NEUTRAL_TILE_BORDER_COLOR);
-        }
-
-        this.getChildren().add(circle);
-    }
-
-    private void removeDotMark() {
-        this.getChildren().removeIf(node -> node instanceof Circle);
-    }
-
-    private void putXMark() {
-        final Line first = new Line(0, 0, TILE_SIZE * 0.7, TILE_SIZE * 0.7);
-        final Line second = new Line(0, TILE_SIZE * 0.7, TILE_SIZE * 0.7, 0);
-
-        first.setStrokeWidth(2);
-        second.setStrokeWidth(2);
-
-        if (cell.getWarSide() == CellWarSide.ENEMY) {
-            first.setStroke(ENEMY_SHIP_TILE_BORDER_COLOR);
-            second.setStroke(ENEMY_SHIP_TILE_BORDER_COLOR);
-        } else {
-            first.setStroke(NEUTRAL_TILE_BORDER_COLOR);
-            second.setStroke(NEUTRAL_TILE_BORDER_COLOR);
-        }
-
-        this.getChildren().add(first);
-        this.getChildren().add(second);
-    }
-
-    private void removeXMark() {
-        this.getChildren().removeIf(node -> node instanceof Line);
-    }
-
-    public MarkType getMarkType() {
-        return markType;
-    }
-
-    public void setMark(MarkType markType) {
-        this.setMarkType(markType);
-        if (markType == MarkType.DOT) {
-            removeXMark();
-            putDotMark();
-        } else if (markType == MarkType.X) {
-            removeDotMark();
-            putXMark();
-        }
     }
 }
