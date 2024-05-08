@@ -30,8 +30,11 @@ public class ShipsData {
                 destroyersAlive + battleshipsAlive;
     }
 
-    private void processShipAliveState(ShotWrapper shotWrapper,
-                                       Ship ship, int shipSize) {
+    private void handleConnectedShot(ShotWrapper shotWrapper,
+                                     Ship ship, int shipSize) {
+        ship.incrementTilesBombed();
+        shotWrapper.setIsShotConnected(true);
+
         if (ship.getTilesBombed() != shipSize) {
             return;
         }
@@ -47,38 +50,25 @@ public class ShipsData {
         }
     }
 
-    public void processShot(int shotRow, int shotColumn, ShotWrapper shotWrapper) {
+    public void handleShotData(int shotRow, int shotColumn,
+                               ShotWrapper shotWrapper) {
         for (Ship ship : ships) {
             final int shipStartRow = ship.getStartRow();
             final int shipStartColumn = ship.getStartColumn();
             final int shipSize = ship.getType().getSize();
-            if (ship.getType() == ShipType.SUBMARINE) {
-                if (shipStartRow == shotRow && shipStartColumn == shotColumn) {
-                    ship.incrementTilesBombed();
-                    shotWrapper.setIsShotConnected(true);
-                    processShipAliveState(shotWrapper, ship, shipSize);
-                    return;
-                }
-            }
 
             if (ship.getDirection() == ShipDirection.HORIZONTAL) {
                 if (shipStartRow == shotRow && (shipStartColumn <= shotColumn
                         && shipStartColumn + shipSize - 1 >= shotColumn)) {
-                    ship.incrementTilesBombed();
-                    shotWrapper.setIsShotConnected(true);
-                    processShipAliveState(shotWrapper, ship, shipSize);
+                    handleConnectedShot(shotWrapper, ship, shipSize);
                     return;
                 }
-
-                continue;
-            }
-
-            if (shipStartColumn == shotColumn && (shipStartRow <= shotRow
-                    && shipStartRow + shipSize - 1 >= shotRow)) {
-                ship.incrementTilesBombed();
-                shotWrapper.setIsShotConnected(true);
-                processShipAliveState(shotWrapper, ship, shipSize);
-                return;
+            } else {
+                if (shipStartColumn == shotColumn && (shipStartRow <= shotRow
+                        && shipStartRow + shipSize - 1 >= shotRow)) {
+                    handleConnectedShot(shotWrapper, ship, shipSize);
+                    return;
+                }
             }
         }
     }

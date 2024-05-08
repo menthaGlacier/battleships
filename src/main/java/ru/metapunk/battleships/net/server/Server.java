@@ -1,7 +1,5 @@
 package ru.metapunk.battleships.net.server;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import ru.metapunk.battleships.model.ship.ShipsData;
 import ru.metapunk.battleships.model.tile.cell.Cell;
 import ru.metapunk.battleships.net.*;
@@ -182,7 +180,7 @@ public class Server {
             return;
         }
 
-        otherPlayerShipsData.processShot(row, column, shotWrapper);
+        otherPlayerShipsData.handleShotData(row, column, shotWrapper);
         client.sendDto(new ShotEnemyTileResponseDto(true, row, column,
                 shotWrapper.getIsShotConnected(),
                 shotWrapper.getIsShipDestroyed(),
