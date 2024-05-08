@@ -14,10 +14,10 @@ public enum CellType implements Serializable {
     RIGHTMOST_HORIZONTAL,
     BRIDGE_HORIZONTAL;
 
-    public static CellType findTileType(int index,
+    public static CellType findCellType(int index,
                                         ShipType type,
                                         ShipDirection direction) {
-        int shipSize = type.getSize();
+        final int shipSize = type.getSize();
 
         if (shipSize == 1) {
             return CellType.SINGULAR;

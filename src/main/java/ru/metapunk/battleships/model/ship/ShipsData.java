@@ -119,7 +119,7 @@ public class ShipsData {
     private void convertCellsToShipData(Cell[][] cells) {
         for (int row = 0; row < Board.MAX_ROWS; row++) {
             for (int column = 0; column < Board.MAX_ROWS; column++) {
-                Cell cell = cells[row][column];
+                final Cell cell = cells[row][column];
                 if (cell.getShipPresence() == CellShipPresence.PRESENT) {
                     addShip(row, column,
                             getShipType(cells, cell, row, column),

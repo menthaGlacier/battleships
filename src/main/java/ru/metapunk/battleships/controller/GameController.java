@@ -84,8 +84,8 @@ public class GameController implements IClientGameObserver {
             return;
         }
 
-        int row = GridPane.getRowIndex(tile);
-        int column = GridPane.getColumnIndex(tile);
+        final int row = GridPane.getRowIndex(tile);
+        final int column = GridPane.getColumnIndex(tile);
 
         client.sendDto(new ShotEnemyTileRequestDto(
                 gameId, client.getClientId(), row, column));
@@ -171,8 +171,10 @@ public class GameController implements IClientGameObserver {
         }
 
         Platform.runLater(() -> {
-            Tile tile = enemyTiles[data.row()][data.column()];
-            tile.getCell().setBombarded(true);
+            final Tile tile = enemyTiles[data.row()][data.column()];
+            final Cell cell = tile.getCell();
+
+            cell.setBombarded(true);
             tile.putDotMark();
 
             if (!data.isShotConnected()) {
@@ -180,30 +182,29 @@ public class GameController implements IClientGameObserver {
                 return;
             }
 
-            tile.getCell().setWarSide(CellWarSide.ENEMY);
+            cell.setWarSide(CellWarSide.ENEMY);
             tile.applyTileStyle();
 
             if (data.isShipDestroyed() && data.destroyedShip() != null) {
-                ShipType shipType = data.destroyedShip().getType();
+                final ShipDirection direction = data.destroyedShip().getDirection();
+                final ShipType type = data.destroyedShip().getType();
                 final int startRow = data.destroyedShip().getStartRow();
                 final int startColumn = data.destroyedShip().getStartColumn();
 
-                for (int i = 0; i < shipType.getSize(); i++) {
-                    if (data.destroyedShip().getDirection() == ShipDirection.VERTICAL) {
-                        enemyTiles[startRow + i][startColumn].getCell()
-                                .setType(CellType.findTileType(i, shipType, data.destroyedShip().getDirection()));
-                        tile.getCell().setWarSide(CellWarSide.ENEMY);
+                for (int i = 0; i < type.getSize(); i++) {
+                    if (direction == ShipDirection.VERTICAL) {
+                        cell.setType(CellType.findCellType(i, type, direction));
                         enemyTiles[startRow + i][startColumn].putXMark();
+                        cell.setWarSide(CellWarSide.ENEMY);
                         tile.applyTileStyle();
                     } else {
-                        enemyTiles[startRow][startColumn + 1].getCell()
-                                .setType(CellType.findTileType(i, shipType, data.destroyedShip().getDirection()));
-                        tile.getCell().setWarSide(CellWarSide.ENEMY);
+                        cell.setType(CellType.findCellType(i, type, direction));
                         enemyTiles[startRow][startColumn + i].putXMark();
+                        cell.setWarSide(CellWarSide.ENEMY);
                         tile.applyTileStyle();
                     }
-                    markAdjustmentTiles(startRow, startColumn,
-                            shipType, data.destroyedShip().getDirection());
+
+                    markAdjustmentTiles(startRow, startColumn, type, direction);
                 }
             }
         });

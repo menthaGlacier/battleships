@@ -97,7 +97,7 @@ public class PlacementController {
         GridPane shipPane = new GridPane();
 
         for (int i = 0; i < shipType.getSize(); i++) {
-            Cell cell = new Cell(CellType.findTileType(i,
+            Cell cell = new Cell(CellType.findCellType(i,
                     shipType, selectedShipDirection),
                     CellWarSide.PLAYER, CellShipPresence.PRESENT);
             shipPane.addColumn(i, new Tile(cell));
@@ -218,7 +218,7 @@ public class PlacementController {
 
         for (int i = 0; i < shipSize; i++) {
             shipTiles[i].getCell().setShipPresence(CellShipPresence.PRESENT);
-            shipTiles[i].getCell().setType(CellType.findTileType(i,
+            shipTiles[i].getCell().setType(CellType.findCellType(i,
                     selectedShipType, selectedShipDirection));
             shipTiles[i].getCell().setWarSide(CellWarSide.PLAYER);
             shipTiles[i].applyTileStyle();
