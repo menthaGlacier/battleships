@@ -15,8 +15,11 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import ru.metapunk.battleships.model.board.Board;
+import ru.metapunk.battleships.model.ship.ShipType;
 import ru.metapunk.battleships.model.tile.Tile;
 import ru.metapunk.battleships.model.tile.cell.Cell;
+import ru.metapunk.battleships.model.tile.cell.CellShipPresence;
+import ru.metapunk.battleships.model.tile.cell.CellType;
 import ru.metapunk.battleships.model.tile.cell.CellWarSide;
 import ru.metapunk.battleships.net.client.Client;
 import ru.metapunk.battleships.net.dto.EnemyShotDto;
@@ -48,8 +51,8 @@ public class GameController implements IClientGameObserver {
     public GameController(Client client, String gameId, Cell[][] playerCells) {
         this.client = client;
         this.gameId = gameId;
-        this.playerTiles = new Tile[Board.DEFAULT_ROWS][Board.DEFAULT_COLUMNS];
-        this.enemyTiles = new Tile[Board.DEFAULT_ROWS][Board.DEFAULT_COLUMNS];
+        this.playerTiles = new Tile[Board.MAX_ROWS][Board.MAX_COLUMNS];
+        this.enemyTiles = new Tile[Board.MAX_ROWS][Board.MAX_COLUMNS];
         this.isPlayerTurnProperty = new SimpleBooleanProperty(false);
 
         Platform.runLater(() -> setPlayerShips(playerCells));
@@ -88,8 +91,8 @@ public class GameController implements IClientGameObserver {
     }
 
     public void setPlayerShips(Cell[][] playerCells) {
-        for (int row = 0; row < Board.DEFAULT_ROWS; row++) {
-            for (int column = 0; column < Board.DEFAULT_COLUMNS; column++) {
+        for (int row = 0; row < Board.MAX_ROWS; row++) {
+            for (int column = 0; column < Board.MAX_COLUMNS; column++) {
                 Tile playerTile = new Tile(playerCells[row][column]);
                 playerTiles[row][column] = playerTile;
                 playerBoard.add(playerTile, column, row);
@@ -99,8 +102,8 @@ public class GameController implements IClientGameObserver {
 
     @FXML
     public void initialize() {
-        for (int row = 0; row < Board.DEFAULT_ROWS; row++) {
-            for (int column = 0; column < Board.DEFAULT_COLUMNS; column++) {
+        for (int row = 0; row < Board.MAX_ROWS; row++) {
+            for (int column = 0; column < Board.MAX_COLUMNS; column++) {
                 Tile enemyTile = new Tile();
                 enemyTile.setOnMouseClicked(e -> handleEnemyTileClick(e, enemyTile));
                 enemyTiles[row][column] = enemyTile;
@@ -122,6 +125,44 @@ public class GameController implements IClientGameObserver {
         Platform.runLater(() -> isPlayerTurnProperty.set(true));
     }
 
+    private void markTile(Tile tile) {
+        if (tile != null) {
+            tile.getCell().setShipPresence(CellShipPresence.NEIGHBORING);
+            tile.putDotMark();
+        }
+    }
+
+    private Tile getTileFromGrid(int row, int column) {
+        if (row < 0 || column < 0 ||
+                row >= Board.MAX_ROWS ||
+                column >= Board.MAX_COLUMNS) {
+            return null;
+        }
+
+        return enemyTiles[row][column];
+    }
+
+    private void markAdjustmentTiles(int row, int column,
+                                     ShipType shipType, boolean isShipHorizontal) {
+        for (int i = -1; i < shipType.getSize() + 1; i++) {
+            if (isShipHorizontal) {
+                markTile(getTileFromGrid(row - 1, column + i));
+                markTile(getTileFromGrid(row + 1, column + i));
+            } else {
+                markTile(getTileFromGrid(row + i, column - 1));
+                markTile(getTileFromGrid(row + i, column + 1));
+            }
+        }
+
+        if (isShipHorizontal) {
+            markTile(getTileFromGrid(row, column - 1));
+            markTile(getTileFromGrid(row, column + shipType.getSize()));
+        } else {
+            markTile(getTileFromGrid(row - 1, column));
+            markTile(getTileFromGrid(row + shipType.getSize(), column));
+        }
+    }
+
     @Override
     public void onShotEnemyTileResponse(ShotEnemyTileResponseDto data) {
         if (!data.isShotValid()) {
@@ -131,22 +172,62 @@ public class GameController implements IClientGameObserver {
         Platform.runLater(() -> {
             Tile tile = enemyTiles[data.row()][data.column()];
             tile.getCell().setBombarded(true);
+            tile.putDotMark();
 
             if (!data.isShotConnected()) {
                 isPlayerTurnProperty.set(false);
-            } else {
-                tile.getCell().setWarSide(CellWarSide.ENEMY);
+                return;
             }
 
-            tile.putDotMark();
+            tile.getCell().setWarSide(CellWarSide.ENEMY);
             tile.applyTileStyle();
+
+            if (data.isShipDestroyed() && data.destroyedShip() != null) {
+                ShipType shipType = data.destroyedShip().getType();
+                final int startRow = data.destroyedShip().getStartRow();
+                final int startColumn = data.destroyedShip().getStartColumn();
+
+                for (int i = 0; i < shipType.getSize(); i++) {
+                    if (data.destroyedShip().isIsVertical()) {
+                        enemyTiles[startRow + i][startColumn].getCell()
+                                .setType(CellType.findTileType(i, shipType, false));
+                        tile.getCell().setWarSide(CellWarSide.ENEMY);
+                        enemyTiles[startRow + i][startColumn].putXMark();
+                        tile.applyTileStyle();
+                    } else {
+                        enemyTiles[startRow][startColumn + 1].getCell()
+                                .setType(CellType.findTileType(i, shipType, true));
+                        tile.getCell().setWarSide(CellWarSide.ENEMY);
+                        enemyTiles[startRow][startColumn + i].putXMark();
+                        tile.applyTileStyle();
+                    }
+                    markAdjustmentTiles(startRow, startColumn,
+                            shipType, !data.destroyedShip().isIsVertical());
+                }
+            }
         });
     }
 
     @Override
     public void onEnemyShot(EnemyShotDto data) {
-        Platform.runLater(() ->
-                playerTiles[data.row()][data.column()].putDotMark());
+        Platform.runLater(() -> {
+            if (data.destroyedShip() == null) {
+                playerTiles[data.row()][data.column()].putDotMark();
+                return;
+            }
+
+            ShipType shipType = data.destroyedShip().getType();
+            final int startRow = data.destroyedShip().getStartRow();
+            final int startColumn = data.destroyedShip().getStartColumn();
+
+            for (int i = 0; i < shipType.getSize(); i++) {
+                if (data.destroyedShip().isIsVertical()) {
+                    playerTiles[startRow + i][startColumn].putXMark();
+                } else {
+                    playerTiles[startRow][startColumn + i].putXMark();
+                }
+            }
+        });
     }
 
     @Override

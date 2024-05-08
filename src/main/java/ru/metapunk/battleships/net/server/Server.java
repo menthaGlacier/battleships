@@ -4,10 +4,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import ru.metapunk.battleships.model.ship.ShipsData;
 import ru.metapunk.battleships.model.tile.cell.Cell;
-import ru.metapunk.battleships.net.Game;
-import ru.metapunk.battleships.net.Lobby;
-import ru.metapunk.battleships.net.Player;
-import ru.metapunk.battleships.net.WhoseTurn;
+import ru.metapunk.battleships.net.*;
 import ru.metapunk.battleships.net.dto.EnemyShotDto;
 import ru.metapunk.battleships.net.dto.response.*;
 import ru.metapunk.battleships.net.dto.signal.GameFinishedSignalDto;
@@ -153,8 +150,7 @@ public class Server {
 
     private void makeShot(ClientHandler client, String gameId, Game game,
                           String playerId, int row, int column) {
-        final BooleanProperty isShotConnected = new SimpleBooleanProperty(false);
-        final BooleanProperty isShipDestroyed = new SimpleBooleanProperty(false);
+        final ShotWrapper shotWrapper = new ShotWrapper();
 
         ClientHandler otherPlayerClient;
         ShipsData otherPlayerShipsData;
@@ -171,23 +167,30 @@ public class Server {
             otherPlayerShipsData = game.getPlayerOneShipsData();
             otherPlayerBoard = game.getPlayerOneBoard();
         } else {
-            client.sendDto(new ShotEnemyTileResponseDto(false,
-                    row, column, isShotConnected.get(), isShipDestroyed.get()));
+            client.sendDto(new ShotEnemyTileResponseDto(false, row, column,
+                    shotWrapper.getIsShotConnected(),
+                    shotWrapper.getIsShipDestroyed(),
+                    shotWrapper.getDestroyedShip()));
             return;
         }
 
         if (otherPlayerBoard[row][column].getBombarded()) {
-            client.sendDto(new ShotEnemyTileResponseDto(false,
-                    row, column, isShotConnected.get(), isShipDestroyed.get()));
+            client.sendDto(new ShotEnemyTileResponseDto(false, row, column,
+                    shotWrapper.getIsShotConnected(),
+                    shotWrapper.getIsShipDestroyed(),
+                    shotWrapper.getDestroyedShip()));
             return;
         }
 
-        otherPlayerShipsData.processShot(isShotConnected, isShipDestroyed, row, column);
-        client.sendDto(new ShotEnemyTileResponseDto(true,
-                row, column, isShotConnected.get(), isShipDestroyed.get()));
-        otherPlayerClient.sendDto(new EnemyShotDto(row, column));
+        otherPlayerShipsData.processShot(row, column, shotWrapper);
+        client.sendDto(new ShotEnemyTileResponseDto(true, row, column,
+                shotWrapper.getIsShotConnected(),
+                shotWrapper.getIsShipDestroyed(),
+                shotWrapper.getDestroyedShip()));
+        otherPlayerClient.sendDto(new EnemyShotDto(row, column,
+                shotWrapper.getDestroyedShip()));
 
-        if (!isShotConnected.get()) {
+        if (!shotWrapper.getIsShotConnected()) {
             game.passTurn();
             otherPlayerClient.sendDto(new PassedTurnSignalDto());
             return;

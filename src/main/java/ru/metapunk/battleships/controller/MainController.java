@@ -91,7 +91,7 @@ public class MainController implements IClientMainObserver {
     }
 
     private void prepareForGame(String gameId) {
-        final Cell[][] cells = new Cell[Board.DEFAULT_ROWS][Board.DEFAULT_COLUMNS];
+        final Cell[][] cells = new Cell[Board.MAX_ROWS][Board.MAX_COLUMNS];
         callShipPlacementDialog(cells);
         client.sendDto(new PlayerBoardSetupDto(gameId, client.getClientId(), cells));
         callAwaitingPlayerReadinessWindow();

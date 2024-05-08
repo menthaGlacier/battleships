@@ -54,7 +54,7 @@ public class PlacementController {
     public PlacementController(Stage stage, Cell[][] cells) {
         this.stage = stage;
         this.cells = cells;
-        this.tiles = new Tile[Board.DEFAULT_ROWS][Board.DEFAULT_COLUMNS];
+        this.tiles = new Tile[Board.MAX_ROWS][Board.MAX_COLUMNS];
 
         this.battleshipsAvailable = new SimpleIntegerProperty(1);
         this.destroyersAvailable = new SimpleIntegerProperty(2);
@@ -96,7 +96,8 @@ public class PlacementController {
         GridPane shipPane = new GridPane();
 
         for (int i = 0; i < shipType.getSize(); i++) {
-            Cell cell = new Cell(findTileType(i, shipType),
+            Cell cell = new Cell(CellType.findTileType(i,
+                    shipType, isSelectedShipHorizontal),
                     CellWarSide.PLAYER, CellShipPresence.PRESENT);
             shipPane.addColumn(i, new Tile(cell));
         }
@@ -147,6 +148,23 @@ public class PlacementController {
         event.consume();
     }
 
+    private void markTile(Tile tile) {
+        if (tile != null) {
+            tile.getCell().setShipPresence(CellShipPresence.NEIGHBORING);
+            tile.putXMark();
+        }
+    }
+
+    private Tile getTileFromGrid(int row, int column) {
+        if (row < 0 || column < 0 ||
+                row >= Board.MAX_ROWS ||
+                column >= Board.MAX_COLUMNS) {
+            return null;
+        }
+
+        return tiles[row][column];
+    }
+
     private void markAdjustmentTiles(int row, int column) {
         for (int i = -1; i < selectedShipType.getSize() + 1; i++) {
             if (isSelectedShipHorizontal) {
@@ -164,22 +182,6 @@ public class PlacementController {
         } else {
             markTile(getTileFromGrid(row - 1, column));
             markTile(getTileFromGrid(row + selectedShipType.getSize(), column));
-        }
-    }
-
-    private Tile getTileFromGrid(int row, int column) {
-        if (row < 0 || column < 0
-                || row >= Board.DEFAULT_ROWS || column >= Board.DEFAULT_COLUMNS) {
-            return null;
-        }
-
-        return tiles[row][column];
-    }
-
-    private void markTile(Tile tile) {
-        if (tile != null) {
-            tile.getCell().setShipPresence(CellShipPresence.NEIGHBORING);
-            tile.putXMark();
         }
     }
 
@@ -215,8 +217,9 @@ public class PlacementController {
 
         for (int i = 0; i < shipSize; i++) {
             shipTiles[i].getCell().setShipPresence(CellShipPresence.PRESENT);
+            shipTiles[i].getCell().setType(CellType.findTileType(i,
+                    selectedShipType, isSelectedShipHorizontal));
             shipTiles[i].getCell().setWarSide(CellWarSide.PLAYER);
-            shipTiles[i].getCell().setType(findTileType(i, selectedShipType));
             shipTiles[i].applyTileStyle();
         }
 
@@ -228,36 +231,6 @@ public class PlacementController {
         }
 
         markAdjustmentTiles(startRow, startColumn);
-    }
-
-    private CellType findTileType(int index, ShipType shipType) {
-        int shipSize = shipType.getSize();
-
-        if (shipSize == 1) {
-            return CellType.SINGULAR;
-        }
-
-        if (index == 0) {
-            if (isSelectedShipHorizontal) {
-                return CellType.LEFTMOST_HORIZONTAL;
-            }
-
-            return CellType.UPMOST_VERTICAL;
-        }
-
-        if (index == shipSize - 1) {
-            if (isSelectedShipHorizontal) {
-                return CellType.RIGHTMOST_HORIZONTAL;
-            }
-
-            return CellType.BOTTOMMOST_VERTICAL;
-        }
-
-        if (isSelectedShipHorizontal) {
-            return CellType.BRIDGE_HORIZONTAL;
-        }
-
-        return CellType.BRIDGE_VERTICAL;
     }
 
     private void rotateSelectedShip() {
@@ -276,8 +249,8 @@ public class PlacementController {
     private void handleClearButtonClick() {
         board.clear();
 
-        for (int row = 0; row < Board.DEFAULT_ROWS; row++) {
-            for (int column = 0; column < Board.DEFAULT_COLUMNS; column++) {
+        for (int row = 0; row < Board.MAX_ROWS; row++) {
+            for (int column = 0; column < Board.MAX_COLUMNS; column++) {
                 Tile tile = new Tile();
 
                 tile.setOnMouseClicked(e -> handleTileClick(e, tile));
@@ -294,8 +267,8 @@ public class PlacementController {
 
     @FXML
     private void handleConfirmButtonClick() {
-        for (int row = 0; row < Board.DEFAULT_ROWS; row++) {
-            for (int column = 0; column < Board.DEFAULT_COLUMNS; column++) {
+        for (int row = 0; row < Board.MAX_ROWS; row++) {
+            for (int column = 0; column < Board.MAX_COLUMNS; column++) {
                 cells[row][column] = tiles[row][column].getCell();
             }
         }
@@ -305,8 +278,8 @@ public class PlacementController {
 
     @FXML
     public void initialize() {
-        for (int row = 0; row < Board.DEFAULT_ROWS; row++) {
-            for (int column = 0; column < Board.DEFAULT_COLUMNS; column++) {
+        for (int row = 0; row < Board.MAX_ROWS; row++) {
+            for (int column = 0; column < Board.MAX_COLUMNS; column++) {
                 Tile tile = new Tile();
 
                 tile.setOnMouseClicked(e -> handleTileClick(e, tile));

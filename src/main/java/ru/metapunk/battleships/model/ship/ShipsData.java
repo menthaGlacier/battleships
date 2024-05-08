@@ -1,10 +1,10 @@
 package ru.metapunk.battleships.model.ship;
 
-import javafx.beans.property.BooleanProperty;
 import ru.metapunk.battleships.model.board.Board;
 import ru.metapunk.battleships.model.tile.cell.Cell;
 import ru.metapunk.battleships.model.tile.cell.CellShipPresence;
 import ru.metapunk.battleships.model.tile.cell.CellType;
+import ru.metapunk.battleships.net.ShotWrapper;
 
 public class ShipsData {
     private final Ship[] ships;
@@ -30,6 +30,7 @@ public class ShipsData {
                 destroyersAlive + battleshipsAlive;
     }
 
+    // TODO fix this naming
     private boolean processShipAliveState(Ship ship, int shipSize) {
         boolean isAnyTileAlive = false;
         for (int i = 0; i < shipSize; i++) {
@@ -54,9 +55,7 @@ public class ShipsData {
         return false;
     }
 
-    public void processShot(BooleanProperty isShotConnected,
-                            BooleanProperty isShipDestroyed,
-                            int shotRow, int shotColumn) {
+    public void processShot(int shotRow, int shotColumn, ShotWrapper shotWrapper) {
         for (Ship ship : ships) {
             final int shipStartRow = ship.getStartRow();
             final int shipStartColumn = ship.getStartColumn();
@@ -64,8 +63,12 @@ public class ShipsData {
             if (ship.getType() == ShipType.SUBMARINE) {
                 if (shipStartRow == shotRow && shipStartColumn == shotColumn) {
                     ship.setIsTileBombed(0, true);
-                    isShotConnected.set(true);
-                    isShipDestroyed.set(processShipAliveState(ship, shipSize));
+                    shotWrapper.setIsShotConnected(true);
+                    if (processShipAliveState(ship, shipSize)) {
+                        shotWrapper.setIsShipDestroyed(true);
+                        shotWrapper.setDestroyedShip(ship);
+                    }
+
                     return;
                 }
             }
@@ -74,8 +77,12 @@ public class ShipsData {
                 if (shipStartColumn == shotColumn && (shipStartRow <= shotRow
                         && shipStartRow + shipSize - 1 >= shotRow)) {
                     ship.setIsTileBombed(shipStartRow + shipSize - shotRow - 1, true);
-                    isShotConnected.set(true);
-                    isShipDestroyed.set(processShipAliveState(ship, shipSize));
+                    shotWrapper.setIsShotConnected(true);
+                    if (processShipAliveState(ship, shipSize)) {
+                        shotWrapper.setIsShipDestroyed(true);
+                        shotWrapper.setDestroyedShip(ship);
+                    }
+
                     return;
                 }
 
@@ -85,8 +92,12 @@ public class ShipsData {
             if (shipStartRow == shotRow && (shipStartColumn <= shotColumn
                     && shipStartColumn + shipSize - 1 >= shotColumn)) {
                 ship.setIsTileBombed(shipStartColumn + shipSize - shotColumn - 1, true);
-                isShotConnected.set(true);
-                isShipDestroyed.set(processShipAliveState(ship, shipSize));
+                shotWrapper.setIsShotConnected(true);
+                if (processShipAliveState(ship, shipSize)) {
+                    shotWrapper.setIsShipDestroyed(true);
+                    shotWrapper.setDestroyedShip(ship);
+                }
+
                 return;
             }
         }
@@ -135,8 +146,8 @@ public class ShipsData {
     }
 
     private void convertCellsToShipData(Cell[][] cells) {
-        for (int row = 0; row < Board.DEFAULT_ROWS; row++) {
-            for (int column = 0; column < Board.DEFAULT_ROWS; column++) {
+        for (int row = 0; row < Board.MAX_ROWS; row++) {
+            for (int column = 0; column < Board.MAX_ROWS; column++) {
                 Cell cell = cells[row][column];
                 if (cell.getShipPresence() == CellShipPresence.PRESENT) {
                     addShip(getShipType(cell, cells, row, column),
