@@ -1,9 +1,9 @@
 package ru.metapunk.battleships.net.server;
 
-import ru.metapunk.battleships.net.dto.signal.PlayerSurrenderedSignalDto;
-import ru.metapunk.battleships.net.game.Player;
 import ru.metapunk.battleships.net.dto.PlayerBoardSetupDto;
+import ru.metapunk.battleships.net.dto.signal.PlayerSurrenderedSignalDto;
 import ru.metapunk.battleships.net.dto.request.*;
+import ru.metapunk.battleships.net.game.Player;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

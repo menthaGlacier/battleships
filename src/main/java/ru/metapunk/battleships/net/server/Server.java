@@ -211,6 +211,7 @@ public class Server {
             return;
         }
 
+        otherPlayerBoard[row][column].setBombarded(true);
         otherPlayerShipsData.handleShotData(row, column, shotWrapper);
         client.sendDto(new ShotEnemyTileResponseDto(true, row, column,
                 shotWrapper.getIsShotConnected(),

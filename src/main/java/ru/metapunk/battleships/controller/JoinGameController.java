@@ -1,7 +1,6 @@
 package ru.metapunk.battleships.controller;
 
 import javafx.application.Platform;
-
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -12,11 +11,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import ru.metapunk.battleships.net.client.Client;
-import ru.metapunk.battleships.net.game.Lobby;
 import ru.metapunk.battleships.net.dto.request.JoinLobbyRequestDto;
 import ru.metapunk.battleships.net.dto.request.OpenLobbiesRequestDto;
 import ru.metapunk.battleships.net.dto.response.JoinLobbyResponseDto;
 import ru.metapunk.battleships.net.dto.response.OpenLobbiesResponseDto;
+import ru.metapunk.battleships.net.game.Lobby;
 import ru.metapunk.battleships.observer.IClientJoinGameObserver;
 
 import java.util.List;

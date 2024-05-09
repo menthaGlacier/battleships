@@ -50,6 +50,7 @@ public class Board extends GridPane {
                 .filter(Objects::nonNull)
                 .forEach(tile -> {
                     tile.setMark(markType);
+                    tile.getCell().setBombarded(true);
                     tile.getCell().setShipPresence(CellShipPresence.NEIGHBORING);
                 });
     }
