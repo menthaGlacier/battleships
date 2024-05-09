@@ -15,7 +15,7 @@ import java.net.Socket;
 import java.util.UUID;
 
 public class Client implements Runnable {
-    private static final String SERVER_DEFAULT_ADDRESS = "metapunk.ru";
+    private static final String SERVER_DEFAULT_ADDRESS = "localhost";
     private static final int SERVER_DEFAULT_PORT = 25821;
 
     private final String clientId;

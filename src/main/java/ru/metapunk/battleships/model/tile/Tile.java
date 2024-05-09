@@ -24,7 +24,6 @@ public class Tile extends StackPane {
 
     private final Pane tilePane;
     private final Cell cell;
-    private MarkType markType;
 
     public Tile() {
         this(new Cell());
@@ -33,7 +32,6 @@ public class Tile extends StackPane {
     public Tile(Cell cell) {
         this.tilePane = new Pane();
         this.cell = cell;
-        this.markType = MarkType.NONE;
 
         this.tilePane.setPrefSize(TILE_SIZE, TILE_SIZE);
         this.applyTileStyle();
@@ -50,10 +48,6 @@ public class Tile extends StackPane {
 
     public Cell getCell() {
         return cell;
-    }
-
-    private void setMarkType(MarkType markType) {
-        this.markType = markType;
     }
 
     private void putDotMark() {
@@ -95,12 +89,7 @@ public class Tile extends StackPane {
         getChildren().removeIf(node -> node instanceof Line);
     }
 
-    public MarkType getMarkType() {
-        return markType;
-    }
-
     public void setMark(MarkType markType) {
-        this.setMarkType(markType);
         if (markType == MarkType.DOT) {
             removeXMark();
             putDotMark();
@@ -139,7 +128,8 @@ public class Tile extends StackPane {
 
         if (cell.getShipPresence() == CellShipPresence.PRESENT) {
             switch (cell.getType()) {
-                case SINGULAR -> color += "holder holder holder holder;";
+                case SINGULAR ->
+                        color += "holder holder holder holder;";
                 case UPMOST_VERTICAL ->
                         color += "holder holder transparent holder;";
                 case BOTTOMMOST_VERTICAL ->
@@ -168,8 +158,8 @@ public class Tile extends StackPane {
     }
 
     public void applyTileStyle() {
-        String fillColorStyle = this.getBackgroundColorStyle();
-        String borderColorStyle = this.getBorderColorStyle();
+        String fillColorStyle = getBackgroundColorStyle();
+        String borderColorStyle = getBorderColorStyle();
 
         tilePane.setStyle(fillColorStyle + " " + borderColorStyle);
     }
