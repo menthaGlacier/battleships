@@ -66,13 +66,6 @@ public class Server {
         }
     }
 
-    public void handleOpenLobbiesRequest(ClientHandler client) {
-        synchronized (lobbies) {
-            List<Lobby> lobbyList = new ArrayList<>(lobbies.values());
-            client.sendDto(new OpenLobbiesResponseDto(lobbyList));
-        }
-    }
-
     public void handleJoinLobbyRequest(String lobbyId, Player player) {
         Lobby lobby;
         synchronized (lobbies) {
@@ -93,6 +86,19 @@ public class Server {
             player.getClientHandler().sendDto(new JoinLobbyResponseDto(gameId, true));
             lobby.getHost().getClientHandler()
                     .sendDto(new OtherPlayerJoinedSignalDto(gameId));
+        }
+    }
+
+    public void handleOpenLobbiesRequest(ClientHandler client) {
+        synchronized (lobbies) {
+            List<Lobby> lobbyList = new ArrayList<>(lobbies.values());
+            client.sendDto(new OpenLobbiesResponseDto(lobbyList));
+        }
+    }
+
+    public void handleLobbyAbandoned(String lobbyId) {
+        synchronized (lobbies) {
+            lobbies.remove(lobbyId);
         }
     }
 

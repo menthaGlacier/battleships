@@ -1,6 +1,7 @@
 package ru.metapunk.battleships.net.server;
 
 import ru.metapunk.battleships.net.dto.PlayerBoardSetupDto;
+import ru.metapunk.battleships.net.dto.signal.LobbyAbandonedSignalDto;
 import ru.metapunk.battleships.net.dto.signal.PlayerSurrenderedSignalDto;
 import ru.metapunk.battleships.net.dto.request.*;
 import ru.metapunk.battleships.net.game.Player;
@@ -48,6 +49,10 @@ public class ClientHandler implements Runnable {
                             ((JoinLobbyRequestDto) dto).lobbyId(), player);
                 } else if (dto instanceof OpenLobbiesRequestDto) {
                     server.handleOpenLobbiesRequest(this);
+                } else if (dto instanceof LobbyAbandonedSignalDto) {
+                    server.handleLobbyAbandoned(
+                            ((LobbyAbandonedSignalDto) dto).lobbyId()
+                    );
                 } else if (dto instanceof PlayerBoardSetupDto) {
                     server.handlePlayerBoardSetup(
                             ((PlayerBoardSetupDto) dto).gameId(),

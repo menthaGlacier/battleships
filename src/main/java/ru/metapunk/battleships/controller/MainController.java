@@ -166,7 +166,7 @@ public class MainController implements IClientMainObserver {
             final FXMLLoader loader = new FXMLLoader(getClass()
                     .getResource("/ru/metapunk/battleships/fxml/awaiting-player-joining-view.fxml"));
             loader.setControllerFactory(controllerClass ->
-                    new AwaitingPlayerJoiningController(dialog, client,
+                    new AwaitingPlayerJoiningController(dialog, client, data.lobbyId(),
                             joinedGameIdProperty));
 
             try {
